@@ -9,13 +9,17 @@ import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.json.JSONObject;
 
+import helpers.FirebaseHelper;
 import helpers.MQTTHelper;
 
 public class MainActivity extends AppCompatActivity {
 
     MQTTHelper mqtt;
     MqttAndroidClient mqttAndroidClient;
+
+    FirebaseHelper db; // db contains data such as the water samples collected by the user
 
     // water quality parameters
     TextView mpH, mOrp, mTurbidity;
@@ -51,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         initMqtt(); // start connection and receive data
+        initFirebase();
     }
 
     private void initMqtt() {
@@ -74,21 +79,16 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                // test case
-                String msg = new String(message.getPayload());
-                mpH.setText("Nivel de pH: " + msg);
-                Log.i("mqtt", "message arrived: " + msg);
-
-                // real case
                 // get json object
-                /*JSONObject jsonmsg = new JSONObject(new String(message.getPayload()));
+                JSONObject jsonmsg = new JSONObject(new String(message.getPayload()));
+                Log.i("mqtt", "message arrived" + new String(message.getPayload()));
                 pH = jsonmsg.getString("pH");
                 orp = jsonmsg.getString("orp");
                 turbidity = jsonmsg.getString("turbidity");
 
                 mpH.setText("Nivel de pH: " + pH);
                 mOrp.setText("Nivel de orp: " + orp);
-                mTurbidity.setText("Nivel de turbidez: " + turbidity);*/
+                mTurbidity.setText("Nivel de turbidez: " + turbidity);
             }
 
             @Override
@@ -96,6 +96,10 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void initFirebase() {
+        db = new FirebaseHelper("andres");
     }
 
     // save values
