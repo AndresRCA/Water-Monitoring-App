@@ -17,9 +17,9 @@ import helpers.MQTTHelper;
 public class MainActivity extends AppCompatActivity {
 
     MQTTHelper mqtt;
-    MqttAndroidClient mqttAndroidClient;
 
     FirebaseHelper db; // db contains data such as the water samples collected by the user
+	String username;
 
     // water quality parameters
     TextView mpH, mOrp, mTurbidity;
@@ -29,13 +29,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
+			username = savedInstanceState.getString("username");
             pH = savedInstanceState.getString("pH");
             orp = savedInstanceState.getString("orp");
             turbidity = savedInstanceState.getString("pH");
         }
-
-        /* Create an MqttAndroidClient object and set a callback interface. */
-        mqttAndroidClient = new MqttAndroidClient(getApplicationContext(), "tcp://tailor.cloudmqtt.com:12475", "cliente-andres");
 
         setContentView(R.layout.activity_main);
 
@@ -54,7 +52,18 @@ public class MainActivity extends AppCompatActivity {
             mTurbidity.setText("Nivel de turbidez: " + turbidity);
         }
 
-        initMqtt(); // start connection and receive data
+		// get username from intent
+		if (username == null) {
+			String extra_username = getIntent().getExtras().getString("username");
+			if (extra_username != null) {
+				username = extra_username;
+			}
+			else {
+				// we have a problem if this ever occurs, this shouldn't happen
+			}
+		}
+		
+		initMqtt(); // start connection and receive data
         initFirebase();
     }
 
@@ -99,13 +108,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initFirebase() {
-        db = new FirebaseHelper("andres");
+       db = new FirebaseHelper(username); // connect to db with this user
     }
 
     // save values
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+		outState.putString("pH", username);
         outState.putString("pH", pH);
         outState.putString("orp", orp);
         outState.putString("turbidity", turbidity);

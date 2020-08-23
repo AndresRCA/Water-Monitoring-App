@@ -35,6 +35,8 @@ import java.util.List;
  * A login screen that offers login via username/password.
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+	
+	private FirebaseDatabase db; // used for login validation
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -50,6 +52,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+		
+		// get db
+		db = FirebaseDatabase.getInstance();
+		
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mUsernameView = (AutoCompleteTextView) findViewById(R.id.username);
@@ -67,8 +73,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.sign_in);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+        Button mSignInButton = (Button) findViewById(R.id.sign_in);
+        mSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
@@ -100,24 +106,30 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
-        // Check for a valid username.
+		// Check if username is empty
         if (TextUtils.isEmpty(username)) {
             mUsernameView.setError(getString(R.string.error_field_required));
             focusView = mUsernameView;
             cancel = true;
         }
+		
+		if (TextUtils.isEmpty(password)) {
+            mPasswordView.setError(getString(R.string.error_field_required));
+            focusView = mPasswordView;
+            cancel = true;
+        }
 
         // Check for a valid username.
-        if (!username.equals("a")) {
+        if (!TextUtils.isEmpty(username) && !isUsernameValid(username)) {
             mUsernameView.setError("This username doesn't exist");
             focusView = mUsernameView;
+            cancel = true;
+        }
+		
+        // Check for a valid password, if the user entered one.
+        if (!TextUtils.isEmpty(password) && !isPasswordValid(username, password)) {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
             cancel = true;
         }
 
@@ -130,14 +142,46 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // perform the user login attempt.
             showProgress(true);
             Intent intent = new Intent(this, MainActivity.class);
+			intent.putExtra("username", username);
             startActivity(intent);
             mAuthTask = new UserLoginTask(username, password);
             mAuthTask.execute((Void) null);
         }
     }
+	
+	// check if user exists
+	private boolean isUsernameValid(String username) {
+		userRef = db.getReference("/users/" + username);
+		userRef.addListenerForSingleValueEvent(new ValueEventListener) {
+			@Override
+			public void onDataChange(DataSnapshot dataSnapshot) {
+				return dataSnapshot.exists(); // username does exist if true
+			}
 
-    private boolean isPasswordValid(String password) {
-        return password.equals("a");
+			@Override
+			public void onCancelled(FirebaseError firebaseError) {
+
+			}
+		});
+	}
+
+	// check if password is correct
+    private boolean isPasswordValid(String username, String password) {
+		userRef = db.getReference("/users/" + username);
+		userRef.addListenerForSingleValueEvent(new ValueEventListener) {
+			@Override
+			public void onDataChange(DataSnapshot dataSnapshot) {
+				if(dataSnapshot.exists()) {
+					String refpassword = dataSnapshot.child("password").getValue();
+					return refpassword.equals(password);
+				}
+			}
+
+			@Override
+			public void onCancelled(FirebaseError firebaseError) {
+
+			}
+		});
     }
 
     /**
