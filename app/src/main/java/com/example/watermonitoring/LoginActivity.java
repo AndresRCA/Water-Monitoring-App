@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
 
@@ -27,6 +28,13 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.google.firebase.FirebaseError;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,88 +108,71 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String username = mUsernameView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        final String username = mUsernameView.getText().toString();
+        final String password = mPasswordView.getText().toString();
 
-        boolean cancel = false;
-        View focusView = null;
+        final boolean[] cancel = {false};
+        final View[] focusView = {null};
 
 		// Check if username is empty
         if (TextUtils.isEmpty(username)) {
             mUsernameView.setError(getString(R.string.error_field_required));
-            focusView = mUsernameView;
-            cancel = true;
+            focusView[0] = mUsernameView;
+            cancel[0] = true;
         }
-		
-		if (TextUtils.isEmpty(password)) {
+
+        // Check if password is empty
+        if (TextUtils.isEmpty(password)) {
             mPasswordView.setError(getString(R.string.error_field_required));
-            focusView = mPasswordView;
-            cancel = true;
+            focusView[0] = mPasswordView;
+            cancel[0] = true;
         }
 
-        // Check for a valid username.
-        if (!TextUtils.isEmpty(username) && !isUsernameValid(username)) {
-            mUsernameView.setError("This username doesn't exist");
-            focusView = mUsernameView;
-            cancel = true;
+        // if neither fields are empty, start database validation
+        if(!cancel[0]) {
+            showProgress(true); // show a progress spinner for this async task
+            DatabaseReference userRef = db.getReference("/users/" + username);
+            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (!dataSnapshot.exists()) { // check if user exists
+                        showProgress(false);
+                        mUsernameView.setError("This username doesn't exist");
+                        focusView[0] = mUsernameView;
+                        // There was an error; don't attempt login and focus the first
+                        // form field with an error.
+                        focusView[0].requestFocus();
+                        cancel[0] = true;
+                    }
+                    else { // if user exists validate password
+                        String refpassword = (String) dataSnapshot.child("password").getValue();
+                        if (!refpassword.equals(password)) {
+                            showProgress(false);
+                            mPasswordView.setError("This password is incorrect");
+                            focusView[0] = mPasswordView;
+                            // There was an error; don't attempt login and focus the first
+                            // form field with an error.
+                            focusView[0].requestFocus();
+                            cancel[0] = true;
+                        }
+                    }
+
+                    // if cancel is still false, proceed with login and start main activity
+                    if(!cancel[0]) {
+                        // login is successful, go to main activity
+                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        intent.putExtra("username", username);
+                        startActivity(intent);
+                        mAuthTask = new UserLoginTask(username, password);
+                        mAuthTask.execute((Void) null);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                }
+            });
         }
-		
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(username, password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-        } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            showProgress(true);
-            Intent intent = new Intent(this, MainActivity.class);
-			intent.putExtra("username", username);
-            startActivity(intent);
-            mAuthTask = new UserLoginTask(username, password);
-            mAuthTask.execute((Void) null);
-        }
-    }
-	
-	// check if user exists
-	private boolean isUsernameValid(String username) {
-		userRef = db.getReference("/users/" + username);
-		userRef.addListenerForSingleValueEvent(new ValueEventListener) {
-			@Override
-			public void onDataChange(DataSnapshot dataSnapshot) {
-				return dataSnapshot.exists(); // username does exist if true
-			}
-
-			@Override
-			public void onCancelled(FirebaseError firebaseError) {
-
-			}
-		});
-	}
-
-	// check if password is correct
-    private boolean isPasswordValid(String username, String password) {
-		userRef = db.getReference("/users/" + username);
-		userRef.addListenerForSingleValueEvent(new ValueEventListener) {
-			@Override
-			public void onDataChange(DataSnapshot dataSnapshot) {
-				if(dataSnapshot.exists()) {
-					String refpassword = dataSnapshot.child("password").getValue();
-					return refpassword.equals(password);
-				}
-			}
-
-			@Override
-			public void onCancelled(FirebaseError firebaseError) {
-
-			}
-		});
     }
 
     /**
