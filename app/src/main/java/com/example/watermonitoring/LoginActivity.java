@@ -114,6 +114,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         final boolean[] cancel = {false};
         final View[] focusView = {null};
 
+        /*------- IMPORTANT: THESE LINES SHOULD BE DELETED IN PRODUCTION -------*/
+        // for now let's bypass validation for development purposes
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.putExtra("username", "andres");
+        startActivity(intent);
+        /*----------------------------------------------------------------------*/
+
 		// Check if username is empty
         if (TextUtils.isEmpty(username)) {
             mUsernameView.setError(getString(R.string.error_field_required));
