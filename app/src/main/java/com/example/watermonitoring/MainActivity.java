@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
-import org.eclipse.paho.android.service.MqttAndroidClient;
+import com.anychart.AnyChartView;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import helpers.FirebaseHelper;
 import helpers.MQTTHelper;
+import helpers.WaterChartHelper;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,6 +21,9 @@ public class MainActivity extends AppCompatActivity {
 
     FirebaseHelper db; // db contains data such as the water samples collected by the user
 	String username;
+
+    WaterChartHelper chart;
+    AnyChartView anyChartView;
 
     // water quality parameters
     TextView mpH, mOrp, mTurbidity;
@@ -40,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         mpH = findViewById(R.id.pH);
         mOrp = findViewById(R.id.orp);
         mTurbidity = findViewById(R.id.turbidity);
+        anyChartView = findViewById(R.id.any_chart_view);
 
         if (pH == null || orp == null || turbidity == null) { // usually this data comes in a single object, so if pH is null then so is everyone else, but I evaluate the three variables for readability
             mpH.setText("Nivel de pH: conectando a servidor...");
@@ -65,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
 		
 		initMqtt(); // start connection and receive data
         initFirebase();
+        initChart();
     }
 
     private void initMqtt() {
@@ -109,6 +115,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void initFirebase() {
        db = new FirebaseHelper(username); // connect to db with this user
+    }
+
+    private void initChart() {
+        anyChartView.setProgressBar(findViewById(R.id.progress_bar));
+        chart = new WaterChartHelper(); // later add the ArrayList with data as an argument
+        anyChartView.setChart(chart.getCartesian()); // display the chart
     }
 
     // save values
