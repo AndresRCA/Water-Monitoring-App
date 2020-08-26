@@ -1,5 +1,7 @@
 package helpers;
 
+import android.util.Log;
+
 import com.anychart.AnyChart;
 import com.anychart.chart.common.dataentry.DataEntry;
 import com.anychart.chart.common.dataentry.ValueDataEntry;
@@ -18,6 +20,7 @@ import java.util.List;
 public class WaterChartHelper {
 
     private Cartesian cartesian;
+    private Set set;
 
     public WaterChartHelper() {
         cartesian = AnyChart.line();
@@ -34,45 +37,25 @@ public class WaterChartHelper {
 
         cartesian.tooltip().positionMode(TooltipPositionMode.POINT);
 
-        cartesian.title("Trend of Sales of the Most Popular Products of ACME Corp.");
+        cartesian.title("Parametros de calidad del agua");
 
-        cartesian.yAxis(0).title("Number of Bottles Sold (thousands)");
+        cartesian.yAxis(0).title("Nivel");
         cartesian.xAxis(0).labels().padding(5d, 5d, 5d, 5d);
 
         List<DataEntry> seriesData = new ArrayList<>();
+
+        // IMPORTANT: apparently I need  to add dummy data here before I insert it in insertSeriesData(), I guess seriesData can't be empty in this case
         seriesData.add(new CustomDataEntry("1986", 3.6, 2.3, 2.8));
         seriesData.add(new CustomDataEntry("1987", 7.1, 4.0, 4.1));
-        seriesData.add(new CustomDataEntry("1988", 8.5, 6.2, 5.1));
-        seriesData.add(new CustomDataEntry("1989", 9.2, 11.8, 6.5));
-        seriesData.add(new CustomDataEntry("1990", 10.1, 13.0, 12.5));
-        seriesData.add(new CustomDataEntry("1991", 11.6, 13.9, 18.0));
-        seriesData.add(new CustomDataEntry("1992", 16.4, 18.0, 21.0));
-        seriesData.add(new CustomDataEntry("1993", 18.0, 23.3, 20.3));
-        seriesData.add(new CustomDataEntry("1994", 13.2, 24.7, 19.2));
-        seriesData.add(new CustomDataEntry("1995", 12.0, 18.0, 14.4));
-        seriesData.add(new CustomDataEntry("1996", 3.2, 15.1, 9.2));
-        seriesData.add(new CustomDataEntry("1997", 4.1, 11.3, 5.9));
-        seriesData.add(new CustomDataEntry("1998", 6.3, 14.2, 5.2));
-        seriesData.add(new CustomDataEntry("1999", 9.4, 13.7, 4.7));
-        seriesData.add(new CustomDataEntry("2000", 11.5, 9.9, 4.2));
-        seriesData.add(new CustomDataEntry("2001", 13.5, 12.1, 1.2));
-        seriesData.add(new CustomDataEntry("2002", 14.8, 13.5, 5.4));
-        seriesData.add(new CustomDataEntry("2003", 16.6, 15.1, 6.3));
-        seriesData.add(new CustomDataEntry("2004", 18.1, 17.9, 8.9));
-        seriesData.add(new CustomDataEntry("2005", 17.0, 18.9, 10.1));
-        seriesData.add(new CustomDataEntry("2006", 16.6, 20.3, 11.5));
-        seriesData.add(new CustomDataEntry("2007", 14.1, 20.7, 12.2));
-        seriesData.add(new CustomDataEntry("2008", 15.7, 21.6, 10));
-        seriesData.add(new CustomDataEntry("2009", 12.0, 22.5, 8.9));
 
-        Set set = Set.instantiate();
+        set = Set.instantiate();
         set.data(seriesData);
         Mapping series1Mapping = set.mapAs("{ x: 'x', value: 'value' }");
         Mapping series2Mapping = set.mapAs("{ x: 'x', value: 'value2' }");
         Mapping series3Mapping = set.mapAs("{ x: 'x', value: 'value3' }");
 
         Line series1 = cartesian.line(series1Mapping);
-        series1.name("Brandy");
+        series1.name("pH");
         series1.hovered().markers().enabled(true);
         series1.hovered().markers()
                 .type(MarkerType.CIRCLE)
@@ -84,7 +67,7 @@ public class WaterChartHelper {
                 .offsetY(5d);
 
         Line series2 = cartesian.line(series2Mapping);
-        series2.name("Whiskey");
+        series2.name("orp");
         series2.hovered().markers().enabled(true);
         series2.hovered().markers()
                 .type(MarkerType.CIRCLE)
@@ -96,7 +79,7 @@ public class WaterChartHelper {
                 .offsetY(5d);
 
         Line series3 = cartesian.line(series3Mapping);
-        series3.name("Tequila");
+        series3.name("turbidez");
         series3.hovered().markers().enabled(true);
         series3.hovered().markers()
                 .type(MarkerType.CIRCLE)
@@ -114,6 +97,15 @@ public class WaterChartHelper {
 
     public Cartesian getCartesian() {
         return cartesian;
+    }
+
+    /**
+     * insert the data to be displayed to the chart.
+     * @param series_data
+     */
+    public void insertSeriesData(List<DataEntry> series_data) {
+        Log.i("insertSeriesData", "inserting data... " + series_data.size() + " values");
+        set.data(series_data); // this will refresh the chart with the new data
     }
 
     private class CustomDataEntry extends ValueDataEntry {

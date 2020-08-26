@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 
 public class WaterSample {
     public String key; // the key given by push() in firebase
+    public String day_published; // the day it was created
     public long created_at;
     public double pH;
     public double orp;
@@ -30,5 +31,4 @@ public class WaterSample {
         String str_date = formatter.format(created_at);
         return str_date;
     }
-
 }

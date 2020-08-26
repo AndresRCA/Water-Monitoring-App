@@ -30,29 +30,41 @@ public class FirebaseHelper {
         DatabaseReference user = db.getReference("/users/" + username);
         waterSamples = user.child("waterSamples"); // get the waterSamples reference for this user, this property is used for monthlyWaterSamples, and is not really used directly
 
+        /*--------- this code here could be situated outside the constructor -------*/
         // set monthlyWaterSamples
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MONTH, -1);
-        long last_month = calendar.getTimeInMillis();
+        long last_month = calendar.getTimeInMillis(); // for now it's a value defined in the constructor, later it could be assigned in a function to establish the time frame to be observed in the reference
         monthlyWaterSamples = waterSamples.orderByChild("created_at").startAt(last_month);
 
-        setInitialWaterSet(); // initialize water_set
         setEventListeners(); // listen to changes in the waterSamples ref and update the water_set in the app
+        /*-------------------------------------------------------------------------*/
     }
 
-    // retrieve initial array of water samples
-    private void setInitialWaterSet() {
+    /**
+     * set initial ArrayList of water samples.
+     * @param callback
+     */
+    public void setInitialWaterSet(final WaterSetCallback callback) {
+        if (water_set != null) {
+            // if water_set was already retrieved just send it immediately to the callback as a response
+            Log.i("setInitialWaterSet", "water_set already defined");
+            callback.onSuccess(water_set);
+            return;
+        }
+
         water_set = new ArrayList<WaterSample>();
         monthlyWaterSamples.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.hasChildren() && dataSnapshot.exists()) { // if /user/$user/waterSamples has children (samples)
+                    Log.i("setInitialWaterSet", "retrieving " + dataSnapshot.getChildrenCount() + " samples");
                     for (DataSnapshot child : dataSnapshot.getChildren()) {
-                        Log.i("onDataChange", dataSnapshot.toString());
                         WaterSample water_sample = child.getValue(WaterSample.class);
                         water_sample.setKey(child.getKey());
                         water_set.add(water_sample);
                     }
+                    callback.onSuccess(water_set);
                 }
             }
 
@@ -60,11 +72,14 @@ public class FirebaseHelper {
             public void onCancelled(DatabaseError databaseError) {
                 // Getting samples failed, log a message
                 Log.w("onCancelled", "loadSamples:onCancelled", databaseError.toException());
+                callback.onFailure();
             }
         });
     }
 
-    // set event listeners for the water_set used in the graph
+    /**
+     * set event listeners for the water_set collected from firebase
+     */
     private void setEventListeners() {
         monthlyWaterSamples.addChildEventListener(new ChildEventListener() {
             @Override
@@ -95,6 +110,14 @@ public class FirebaseHelper {
             public void onCancelled(@NonNull DatabaseError error) {
             }
         });
+    }
+
+    /**
+     * interface for callbacks in setInitialWaterSet()
+     */
+    public interface WaterSetCallback {
+        void onSuccess(ArrayList<WaterSample> water_set);
+        void onFailure();
     }
 
 }
