@@ -16,13 +16,15 @@ public class MQTTHelper {
 
     final String server_uri = "tcp://tailor.cloudmqtt.com:12475";
 
-    final String client_id = "cliente-andres";
-    final String topic = "testing";
+    final String client_id; // the client_id is the username of the client (username in the database)
+    final String topic; // topic = "water/" + client_id
 
     final String username = "qgdwogpe";
     final String password = "o01oeATc9wc2";
 
-    public MQTTHelper(Context context) {
+    public MQTTHelper(Context context, String client_id) {
+		this.client_id = client_id;
+		topic = "water/" + client_id;
         mqttAndroidClient = new MqttAndroidClient(context, server_uri, client_id);
         connect();
     }
@@ -44,8 +46,6 @@ public class MQTTHelper {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     Log.w("Mqtt", "Connected to server!");
-
-                    // I have no idea what these options are
                     DisconnectedBufferOptions disconnectedBufferOptions = new DisconnectedBufferOptions();
                     disconnectedBufferOptions.setBufferEnabled(true);
                     disconnectedBufferOptions.setBufferSize(100);

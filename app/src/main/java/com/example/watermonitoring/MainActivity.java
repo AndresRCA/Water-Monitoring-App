@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initMqtt() {
-        mqtt = new MQTTHelper(getApplicationContext());
+        mqtt = new MQTTHelper(getApplicationContext(), username);
         mqtt.setCallback(new MqttCallbackExtended() {
             @Override
             public void connectComplete(boolean reconnect, String serverURI) {
@@ -95,9 +95,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void connectionLost(Throwable throwable) {
                 Log.i("connection", "connection lost");
-                mpH.setText("Nivel de pH: conexiÃ³n perdida");
-                mOrp.setText("Nivel de orp: conexiÃ³n perdida");
-                mTurbidity.setText("Nivel de turbidez: conexiÃ³n perdida");
+                mpH.setText("Nivel de pH: conexion perdida");
+                mOrp.setText("Nivel de orp: conexion perdida");
+                mTurbidity.setText("Nivel de turbidez: conexion perdida");
             }
 
             @Override
