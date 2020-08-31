@@ -48,7 +48,7 @@ public class FirebaseHelper {
     public void setInitialWaterSet(final WaterSetCallback callback) {
         if (water_set != null) {
             // if water_set was already retrieved just send it immediately to the callback as a response
-            Log.i("setInitialWaterSet", "water_set already defined");
+            Log.i("water/setInitialWaterSet", "water_set already defined");
             callback.onSuccess(water_set);
             return;
         }
@@ -58,7 +58,7 @@ public class FirebaseHelper {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.hasChildren() && dataSnapshot.exists()) { // if /user/$user/waterSamples has children (samples)
-                    Log.i("setInitialWaterSet", "retrieving " + dataSnapshot.getChildrenCount() + " samples");
+                    Log.i("water/setInitialWaterSet", "retrieving " + dataSnapshot.getChildrenCount() + " samples");
                     for (DataSnapshot child : dataSnapshot.getChildren()) {
                         WaterSample water_sample = child.getValue(WaterSample.class);
                         water_sample.setKey(child.getKey());
@@ -71,7 +71,7 @@ public class FirebaseHelper {
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 // Getting samples failed, log a message
-                Log.w("onCancelled", "loadSamples:onCancelled", databaseError.toException());
+                Log.w("water/onCancelled", "loadSamples:onCancelled", databaseError.toException());
                 callback.onFailure();
             }
         });
@@ -88,7 +88,9 @@ public class FirebaseHelper {
                 // A new water sample has been added
                 WaterSample sample = dataSnapshot.getValue(WaterSample.class);
                 sample.setKey(dataSnapshot.getKey());
-                water_set.add(sample);
+                if (water_set != null) {
+                    water_set.add(sample);
+                }
             }
 
             @Override
@@ -99,7 +101,9 @@ public class FirebaseHelper {
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Log.d("onChildRemoved", dataSnapshot.getKey());
                 // Do something like get the id (key) and compare it to something in water_set and remove it, or just remove the first element since the first element will always be the one getting removed according to cloud functions
-                water_set.remove(0);
+                if (water_set != null) {
+                    water_set.remove(0);
+                }
             }
 
             @Override

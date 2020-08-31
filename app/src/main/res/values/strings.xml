@@ -1,6 +1,7 @@
 <resources>
-    <string name="app_name">WaterMonitoring</string>
+    <string name="app_name">Water Monitoring</string>
     <!-- Strings related to login -->
+    <string name="login_activity">Login</string>
     <string name="prompt_username">Username</string>
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in</string>
@@ -12,4 +13,6 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+
+    <string name="main_activity">Water Monitoring</string>
 </resources>

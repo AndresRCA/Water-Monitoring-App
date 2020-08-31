@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     FirebaseHelper db; // db contains data such as the water samples collected by the user
 	String username;
 
-    List<DataEntry> series_data;
+	ArrayList<WaterSample> water_set;
 	WaterChartHelper chart;
     AnyChartView anyChartView;
 
@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
             pH = savedInstanceState.getString("pH");
             orp = savedInstanceState.getString("orp");
             turbidity = savedInstanceState.getString("pH");
+            water_set = savedInstanceState.getParcelableArrayList("water_set");
         }
 
         setContentView(R.layout.activity_main);
@@ -126,16 +127,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initChart() {
-        if (series_data == null) { // retrieve the data from the db to display it in the chart
-            Log.i("initChart", "series_data is null, calling db.setInitialWaterSet");
-
-            /* this progress bar is not showing at all, in fact, when this line is all this function does, the application crashes */
-            anyChartView.setProgressBar(findViewById(R.id.progress_bar)); // display progress bar while retrieving the data to be used in the chart
-
+        anyChartView.setProgressBar(findViewById(R.id.progress_bar));  // display progress bar while retrieving the data to be used in the chart
+        if (water_set == null) { // retrieve the data from the db to display it in the chart
+            Log.i("water/initChart", "series_data is null, calling db.setInitialWaterSet");
             db.setInitialWaterSet(new FirebaseHelper.WaterSetCallback() {
                 @Override
                 public void onSuccess(ArrayList<WaterSample> waterSet) {
-                    series_data = new ArrayList<>(); // data for the chart
+                    water_set = new ArrayList<>(); // data for the chart
                     String last_date = waterSet.get(0).getStrDate("dd/MM");
                     String current_date;
                     double avg_pH = 0;
@@ -151,7 +149,11 @@ public class MainActivity extends AppCompatActivity {
                             avg_pH = avg_pH/counter;
                             avg_orp = avg_orp/counter;
                             avg_turbidity = avg_turbidity/counter;
-                            series_data.add(new CustomDataEntry(last_date, avg_pH, avg_orp, avg_turbidity));
+                            //series_data.add(new CustomDataEntry(last_date, avg_pH, avg_orp, avg_turbidity));
+                            WaterSample chart_sample = new WaterSample(sample.created_at, avg_pH, avg_orp, avg_turbidity);
+                            chart_sample.setKey(sample.key);
+                            // add a setDayMonth(last_date) maybe, for processing purposes
+                            water_set.add(chart_sample); // this created_at is the next day one, try to save the last day one
 
                             // reset variables for next item in the chart (water_set)
                             avg_pH = 0;
@@ -168,10 +170,9 @@ public class MainActivity extends AppCompatActivity {
                         last_date = current_date;
                     }
 
-                    chart = new WaterChartHelper(); // create a chart
-                    Log.i("initChart", "inserting data to chart...");
-                    chart.insertSeriesData(series_data); // insert values to show in the chart
-                    anyChartView.setChart(chart.getCartesian()); // display chart
+                    chart = new WaterChartHelper(water_set); // create a chart
+                    //chart.insertSeriesData(series_data); // insert values to show in the chart
+                    anyChartView.setChart(chart.getCartesian()); // display chart*/
                 }
 
                 @Override
@@ -180,8 +181,9 @@ public class MainActivity extends AppCompatActivity {
             });
         }
         else { // display the existing chart
-            chart = new WaterChartHelper(); // create a chart
-            chart.insertSeriesData(series_data); // insert values to show in the chart, series_data might turn into ArrayList<WaterSample> water_set if I can't find a way to save the series_data list
+            Log.i("water/initChart", "series_data is not null");
+            chart = new WaterChartHelper(water_set); // create a chart
+            //chart.insertSeriesData(series_data); // insert values to show in the chart, series_data might turn into ArrayList<WaterSample> water_set if I can't find a way to save the series_data list
             anyChartView.setChart(chart.getCartesian());
         }
     }
@@ -189,12 +191,13 @@ public class MainActivity extends AppCompatActivity {
     // save values
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        Log.i("water/onSaveInstanceState", "saving state...");
         super.onSaveInstanceState(outState);
 		outState.putString("pH", username);
         outState.putString("pH", pH);
         outState.putString("orp", orp);
         outState.putString("turbidity", turbidity);
-        //outState.putParcelableArrayList("series_data", series_data); // an ArrayList works as well if the object extends Parceable (or something like that)
+        outState.putParcelableArrayList("water_set", water_set); // an ArrayList works as well if the object extends Parceable (or something like that)
     }
 
     // class used for inserting data to the chart

@@ -14,20 +14,25 @@ import com.anychart.enums.MarkerType;
 import com.anychart.enums.TooltipPositionMode;
 import com.anychart.graphics.vector.Stroke;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import models.WaterSample;
 
 public class WaterChartHelper {
 
     private Cartesian cartesian;
     private Set set;
 
-    public WaterChartHelper() {
+    public WaterChartHelper(@NotNull ArrayList<WaterSample> water_set) {
         cartesian = AnyChart.line();
 
         cartesian.animation(true);
 
         cartesian.padding(10d, 20d, 5d, 20d);
+        cartesian.background().fill("#404040");
 
         cartesian.crosshair().enabled(true);
         cartesian.crosshair()
@@ -44,11 +49,12 @@ public class WaterChartHelper {
 
         List<DataEntry> seriesData = new ArrayList<>();
 
-        // IMPORTANT: apparently I need  to add dummy data here before I insert it in insertSeriesData(), I guess seriesData can't be empty in this case
-        seriesData.add(new CustomDataEntry("1986", 3.6, 2.3, 2.8));
-        seriesData.add(new CustomDataEntry("1987", 7.1, 4.0, 4.1));
+        for (WaterSample sample : water_set) {
+            seriesData.add(new CustomDataEntry(sample.getStrDate("dd/MM"), sample.pH, sample.orp, sample.turbidity));
+        }
 
         set = Set.instantiate();
+        Log.i("water/WaterChartHelper", "inserting data... " + seriesData.size() + " values");
         set.data(seriesData);
         Mapping series1Mapping = set.mapAs("{ x: 'x', value: 'value' }");
         Mapping series2Mapping = set.mapAs("{ x: 'x', value: 'value2' }");
@@ -99,14 +105,15 @@ public class WaterChartHelper {
         return cartesian;
     }
 
+
     /**
      * insert the data to be displayed to the chart.
      * @param series_data
      */
-    public void insertSeriesData(List<DataEntry> series_data) {
-        Log.i("insertSeriesData", "inserting data... " + series_data.size() + " values");
+    /*public void insertSeriesData(List<DataEntry> series_data) {
+        Log.i("water/insertSeriesData", "inserting data... " + series_data.size() + " values");
         set.data(series_data); // this will refresh the chart with the new data
-    }
+    }*/
 
     private class CustomDataEntry extends ValueDataEntry {
 

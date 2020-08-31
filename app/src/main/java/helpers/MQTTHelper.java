@@ -45,7 +45,7 @@ public class MQTTHelper {
             mqttAndroidClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    Log.w("Mqtt", "Connected to server!");
+                    Log.w("water/Mqtt", "Connected to server!");
                     DisconnectedBufferOptions disconnectedBufferOptions = new DisconnectedBufferOptions();
                     disconnectedBufferOptions.setBufferEnabled(true);
                     disconnectedBufferOptions.setBufferSize(100);
@@ -57,7 +57,7 @@ public class MQTTHelper {
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    Log.w("Mqtt", "Failed to connect to: " + server_uri + exception.toString());
+                    Log.w("water/Mqtt", "Failed to connect to: " + server_uri + exception.toString());
                 }
             });
 
@@ -73,12 +73,12 @@ public class MQTTHelper {
             mqttAndroidClient.subscribe(topic, 0, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    Log.w("Mqtt","Subscribed");
+                    Log.w("water/Mqtt","Subscribed");
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    Log.w("Mqtt", "Subscription error");
+                    Log.w("water/Mqtt", "Subscription error");
                 }
             });
 
