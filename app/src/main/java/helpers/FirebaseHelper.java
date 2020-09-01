@@ -11,7 +11,6 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,41 +19,35 @@ import models.WaterSample;
 public class FirebaseHelper {
     private FirebaseDatabase db;
     private DatabaseReference waterSamples;
-    private Query monthlyWaterSamples; // previous month water samples
+    private Query waterSamplesToWatch;
     public ArrayList<WaterSample> water_set; // array that is displayed on the activity in a graph
+    private long start_date;
 
     public FirebaseHelper(String username) {
         db = FirebaseDatabase.getInstance();
-
-        // set waterSamples
         DatabaseReference user = db.getReference("/users/" + username);
         waterSamples = user.child("waterSamples"); // get the waterSamples reference for this user, this property is used for monthlyWaterSamples, and is not really used directly
-
-        /*--------- this code here could be situated outside the constructor -------*/
-        // set monthlyWaterSamples
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MONTH, -1);
-        long last_month = calendar.getTimeInMillis(); // for now it's a value defined in the constructor, later it could be assigned in a function to establish the time frame to be observed in the reference
-        monthlyWaterSamples = waterSamples.orderByChild("created_at").startAt(last_month);
-
-        setEventListeners(); // listen to changes in the waterSamples ref and update the water_set in the app
-        /*-------------------------------------------------------------------------*/
+        start_date = 0; // initial start_date for querying
     }
 
     /**
      * set initial ArrayList of water samples.
      * @param callback
      */
-    public void setInitialWaterSet(final WaterSetCallback callback) {
+    public void setInitialWaterSet(long start_date, final WaterSetCallback callback) {
+        if (this.start_date == 0) {
+            this.start_date = start_date;
+        }
+        waterSamplesToWatch = waterSamples.orderByChild("created_at").startAt(start_date);
+
         if (water_set != null) {
-            // if water_set was already retrieved just send it immediately to the callback as a response
-            Log.i("water/setInitialWaterSet", "water_set already defined");
+            // send the already defined water_set, no need to call addListenerForSingleValueEvent for retrieval
             callback.onSuccess(water_set);
             return;
         }
 
         water_set = new ArrayList<WaterSample>();
-        monthlyWaterSamples.addListenerForSingleValueEvent(new ValueEventListener() {
+        waterSamplesToWatch.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.hasChildren() && dataSnapshot.exists()) { // if /user/$user/waterSamples has children (samples)
@@ -78,19 +71,21 @@ public class FirebaseHelper {
     }
 
     /**
-     * set event listeners for the water_set collected from firebase
+     * set event listeners for the waterSamplesToWatch defined previously in setInitialWaterSet
      */
-    private void setEventListeners() {
-        monthlyWaterSamples.addChildEventListener(new ChildEventListener() {
+    public void setEventListeners(final WaterSetListenerCallback callback) {
+        if (waterSamplesToWatch == null) {
+            waterSamplesToWatch = waterSamples.orderByChild("created_at").startAt(start_date);
+        }
+
+        waterSamplesToWatch.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d("onChildAdded", dataSnapshot.getKey());
                 // A new water sample has been added
                 WaterSample sample = dataSnapshot.getValue(WaterSample.class);
                 sample.setKey(dataSnapshot.getKey());
-                if (water_set != null) {
-                    water_set.add(sample);
-                }
+                callback.onChildAdded(sample); // do what you want with the sample added
             }
 
             @Override
@@ -100,10 +95,9 @@ public class FirebaseHelper {
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Log.d("onChildRemoved", dataSnapshot.getKey());
-                // Do something like get the id (key) and compare it to something in water_set and remove it, or just remove the first element since the first element will always be the one getting removed according to cloud functions
-                if (water_set != null) {
-                    water_set.remove(0);
-                }
+                WaterSample sample = dataSnapshot.getValue(WaterSample.class);
+                sample.setKey(dataSnapshot.getKey());
+                callback.onChildRemoved(sample); // do what you want with the child that was removed
             }
 
             @Override
@@ -122,6 +116,11 @@ public class FirebaseHelper {
     public interface WaterSetCallback {
         void onSuccess(ArrayList<WaterSample> water_set);
         void onFailure();
+    }
+
+    public interface WaterSetListenerCallback {
+        void onChildAdded(WaterSample sample);
+        void onChildRemoved(WaterSample sample);
     }
 
 }

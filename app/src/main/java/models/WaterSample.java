@@ -3,9 +3,6 @@ package models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -27,7 +24,7 @@ public class WaterSample implements Parcelable {
         this.turbidity = turbidity;
     }
 
-    protected WaterSample(@org.jetbrains.annotations.NotNull Parcel in) {
+    protected WaterSample(Parcel in) {
         key = in.readString();
         created_at = in.readLong();
         pH = in.readDouble();
@@ -36,15 +33,11 @@ public class WaterSample implements Parcelable {
     }
 
     public static final Creator<WaterSample> CREATOR = new Creator<WaterSample>() {
-        @NotNull //...
-        @Contract("_ -> new") //...
         @Override
         public WaterSample createFromParcel(Parcel in) {
             return new WaterSample(in);
         }
 
-        @NotNull //...
-        @Contract(value = "_ -> new", pure = true) //...
         @Override
         public WaterSample[] newArray(int size) {
             return new WaterSample[size];
@@ -66,7 +59,6 @@ public class WaterSample implements Parcelable {
         return 0;
     }
 
-    // this method might not be needed?
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(key);
@@ -75,4 +67,5 @@ public class WaterSample implements Parcelable {
         dest.writeDouble(orp);
         dest.writeDouble(turbidity);
     }
+
 }

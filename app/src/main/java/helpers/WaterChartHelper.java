@@ -1,6 +1,8 @@
 package helpers;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import com.anychart.AnyChart;
@@ -21,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import models.WaterSample;
+import models.WaterChartItem;
 
 public class WaterChartHelper {
 
@@ -29,7 +31,7 @@ public class WaterChartHelper {
     private Set set;
     private Context context;
 
-    public WaterChartHelper(Context app_context, @NotNull ArrayList<WaterSample> water_set) {
+    public WaterChartHelper(Context app_context, @NotNull ArrayList<WaterChartItem> water_set) {
         context = app_context;
         cartesian = AnyChart.line();
 
@@ -53,8 +55,8 @@ public class WaterChartHelper {
 
         List<DataEntry> seriesData = new ArrayList<>();
 
-        for (WaterSample sample : water_set) {
-            seriesData.add(new CustomDataEntry(sample.getStrDate("dd/MM"), sample.pH, sample.orp, sample.turbidity));
+        for (WaterChartItem item : water_set) {
+            seriesData.add(new CustomDataEntry(item.sample.getStrDate("dd/MM"), item.sample.pH, item.sample.orp, item.sample.turbidity));
         }
 
         set = Set.instantiate();
@@ -109,15 +111,19 @@ public class WaterChartHelper {
         return cartesian;
     }
 
-
+    // improve this function...
     /*
      * insert the data to be displayed to the chart.
      * @param series_data
      */
-    /*public void insertSeriesData(List<DataEntry> series_data) {
-        Log.i("water/insertSeriesData", "inserting data... " + series_data.size() + " values");
-        set.data(series_data); // this will refresh the chart with the new data
-    }*/
+    public void insertSeriesData(ArrayList<WaterChartItem> chart_data) {
+        Log.i("water/insertSeriesData", "inserting data... " + chart_data.size() + " values");
+        List<DataEntry> seriesData = new ArrayList<>();
+        for (WaterChartItem item : chart_data) {
+            seriesData.add(new CustomDataEntry(item.sample.getStrDate("dd/MM"), item.sample.pH, item.sample.orp, item.sample.turbidity));
+        }
+        set.data(seriesData); // this will refresh the chart with the new data
+    }
 
     private class CustomDataEntry extends ValueDataEntry {
 
