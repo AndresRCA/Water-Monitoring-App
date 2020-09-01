@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Water Monitoring</string>
-    <!-- Strings related to login -->
+
+    <!-- LoginActivity -->
     <string name="login_activity">Login</string>
     <string name="logo">Logo</string>
     <string name="prompt_username">Username</string>
@@ -11,5 +12,18 @@
     <string name="error_invalid_password">This password is invalid</string>
     <string name="error_field_required">This field is required</string>
 
+    <!-- MainActivity -->
     <string name="main_activity">Water Monitoring</string>
+    <string name="ph_text">pH level:</string>
+    <string name="orp_text">ORP level:</string>
+    <string name="turbidity_text">Turbidity level:</string>
+    <string name="connecting_to_server">connecting to server...</string>
+    <string name="connection_lost">connection lost</string>
+    <string name="waiting_for_data">connected! waiting for data...</string>
+    <!-- WaterChartHelper -->
+    <string name="chart_title">Water Quality Parameters</string>
+    <string name="chart_y_title">Level</string>
+    <string name="chart_series1_name">pH</string>
+    <string name="chart_series2_name">ORP</string>
+    <string name="chart_series3_name">Turbidity</string>
 </resources>

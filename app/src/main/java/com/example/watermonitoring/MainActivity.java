@@ -6,16 +6,14 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.anychart.AnyChartView;
-import com.anychart.chart.common.dataentry.DataEntry;
-import com.anychart.chart.common.dataentry.ValueDataEntry;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import helpers.FirebaseHelper;
 import helpers.MQTTHelper;
@@ -56,14 +54,15 @@ public class MainActivity extends AppCompatActivity {
         anyChartView = findViewById(R.id.any_chart_view);
 
         if (pH == null || orp == null || turbidity == null) { // usually this data comes in a single object, so if pH is null then so is everyone else, but I evaluate the three variables for readability
-            mpH.setText("Nivel de pH: conectando a servidor...");
-            mOrp.setText("Nivel de orp: conectando a servidor...");
-            mTurbidity.setText("Nivel de turbidez: conectando a servidor...");
+            /* IMPORTANT: the first string in all of these is always the same, I should just make to TextViews and modify the second one where the value is shown */
+            mpH.setText(getString(R.string.ph_text) + " " + getString(R.string.connecting_to_server));
+            mOrp.setText(getString(R.string.orp_text) + " " + getString(R.string.connecting_to_server));
+            mTurbidity.setText(getString(R.string.turbidity_text) + " " + getString(R.string.connecting_to_server));
         }
         else {
-            mpH.setText("Nivel de pH: " + pH);
-            mOrp.setText("Nivel de orp: " + orp);
-            mTurbidity.setText("Nivel de turbidez: " + turbidity);
+            mpH.setText(getString(R.string.ph_text) + " " + pH);
+            mOrp.setText(getString(R.string.orp_text) + " " + orp);
+            mTurbidity.setText(getString(R.string.turbidity_text) + " " + turbidity);
         }
 
 		// get username from intent
@@ -82,23 +81,26 @@ public class MainActivity extends AppCompatActivity {
         initChart();
     }
 
+    /**
+     * create mqtt connection and set callbacks for receiving data
+     */
     private void initMqtt() {
         mqtt = new MQTTHelper(getApplicationContext(), username);
         mqtt.setCallback(new MqttCallbackExtended() {
             @Override
             public void connectComplete(boolean reconnect, String serverURI) {
                 Log.i("connection", "connection complete!");
-                mpH.setText("Nivel de pH: conectado! esperando datos...");
-                mOrp.setText("Nivel de orp: conectado! esperando datos...");
-                mTurbidity.setText("Nivel de turbidez: conectado! esperando datos...");
+                mpH.setText(getString(R.string.ph_text) + " " + getString(R.string.waiting_for_data));
+                mOrp.setText(getString(R.string.orp_text) + " " + getString(R.string.waiting_for_data));
+                mTurbidity.setText(getString(R.string.turbidity_text) + " " + getString(R.string.waiting_for_data));
             }
 
             @Override
             public void connectionLost(Throwable throwable) {
                 Log.i("connection", "connection lost");
-                mpH.setText("Nivel de pH: conexion perdida");
-                mOrp.setText("Nivel de orp: conexion perdida");
-                mTurbidity.setText("Nivel de turbidez: conexion perdida");
+                mpH.setText(getString(R.string.ph_text) + " " + getString(R.string.connection_lost));
+                mOrp.setText(getString(R.string.orp_text) + " " + getString(R.string.connection_lost));
+                mTurbidity.setText(getString(R.string.turbidity_text) + " " + getString(R.string.connection_lost));
             }
 
             @Override
@@ -110,9 +112,9 @@ public class MainActivity extends AppCompatActivity {
                 orp = jsonmsg.getString("orp");
                 turbidity = jsonmsg.getString("turbidity");
 
-                mpH.setText("Nivel de pH: " + pH);
-                mOrp.setText("Nivel de orp: " + orp);
-                mTurbidity.setText("Nivel de turbidez: " + turbidity);
+                mpH.setText(getString(R.string.ph_text) + " " + pH);
+                mOrp.setText(getString(R.string.orp_text) + " " + orp);
+                mTurbidity.setText(getString(R.string.turbidity_text) + " " + turbidity);
             }
 
             @Override
@@ -133,44 +135,8 @@ public class MainActivity extends AppCompatActivity {
             db.setInitialWaterSet(new FirebaseHelper.WaterSetCallback() {
                 @Override
                 public void onSuccess(ArrayList<WaterSample> waterSet) {
-                    water_set = new ArrayList<>(); // data for the chart
-                    String last_date = waterSet.get(0).getStrDate("dd/MM");
-                    String current_date;
-                    double avg_pH = 0;
-                    double avg_orp = 0;
-                    double avg_turbidity = 0;
-                    int counter = 1;
-                    int i = 0;
-
-                    for (WaterSample sample : waterSet) { // get trimmed version of waterSet
-                        current_date = sample.getStrDate("dd/MM");
-                        if (!current_date.equals(last_date) || i == waterSet.size() - 1) {
-                            // if the date changed or if you reached the last element, insert the average of that day to the list
-                            avg_pH = avg_pH/counter;
-                            avg_orp = avg_orp/counter;
-                            avg_turbidity = avg_turbidity/counter;
-                            //series_data.add(new CustomDataEntry(last_date, avg_pH, avg_orp, avg_turbidity));
-                            WaterSample chart_sample = new WaterSample(sample.created_at, avg_pH, avg_orp, avg_turbidity);
-                            chart_sample.setKey(sample.key);
-                            // add a setDayMonth(last_date) maybe, for processing purposes
-                            water_set.add(chart_sample); // this created_at is the next day one, try to save the last day one
-
-                            // reset variables for next item in the chart (water_set)
-                            avg_pH = 0;
-                            avg_orp = 0;
-                            avg_turbidity = 0;
-                            counter = 0;
-                        }
-                        // keep summing the averages
-                        avg_pH += sample.pH;
-                        avg_orp += sample.orp;
-                        avg_turbidity += sample.turbidity;
-                        counter++;
-                        i++;
-                        last_date = current_date;
-                    }
-
-                    chart = new WaterChartHelper(water_set); // create a chart
+                    water_set = getDailySamplesAvg(waterSet); // get the daily averages for the time interval specified in setInitialWaterSet()
+                    chart = new WaterChartHelper(getApplicationContext(), water_set); // create a chart
                     //chart.insertSeriesData(series_data); // insert values to show in the chart
                     anyChartView.setChart(chart.getCartesian()); // display chart*/
                 }
@@ -182,13 +148,62 @@ public class MainActivity extends AppCompatActivity {
         }
         else { // display the existing chart
             Log.i("water/initChart", "series_data is not null");
-            chart = new WaterChartHelper(water_set); // create a chart
+            chart = new WaterChartHelper(getApplicationContext(), water_set); // create a chart
             //chart.insertSeriesData(series_data); // insert values to show in the chart, series_data might turn into ArrayList<WaterSample> water_set if I can't find a way to save the series_data list
             anyChartView.setChart(chart.getCartesian());
         }
     }
 
-    // save values
+    /**
+     * get the daily averages for the data set provided by FirebaseHelper.setInitialWaterSet()
+     * @param waterSet
+     * @return
+     */
+    private ArrayList<WaterSample> getDailySamplesAvg(@NotNull ArrayList<WaterSample> waterSet) {
+        ArrayList<WaterSample> water_set = new ArrayList<>(); // data for the chart
+        String last_date = waterSet.get(0).getStrDate("dd/MM");
+        long last_created_at = waterSet.get(0).created_at;
+        String current_date;
+        double avg_pH = 0;
+        double avg_orp = 0;
+        double avg_turbidity = 0;
+        int counter = 1;
+        int i = 0;
+
+        for (WaterSample sample : waterSet) { // get trimmed version of waterSet
+            current_date = sample.getStrDate("dd/MM");
+            if (!current_date.equals(last_date) || i == waterSet.size() - 1) {
+                // if the date changed or if you reached the last element, insert the average of that day to the list
+                avg_pH = avg_pH/counter;
+                avg_orp = avg_orp/counter;
+                avg_turbidity = avg_turbidity/counter;
+                //series_data.add(new CustomDataEntry(last_date, avg_pH, avg_orp, avg_turbidity));
+                WaterSample chart_sample = new WaterSample(last_created_at, avg_pH, avg_orp, avg_turbidity); // a note about this, last_created_at is only important for getting the correct "dd/MM" value when creating the chart
+                chart_sample.setKey(sample.key);
+                // add a setDayMonth(last_date) maybe, for processing purposes
+                water_set.add(chart_sample); // this created_at is the next day one, try to save the last day one
+
+                // reset variables for next item in the chart (water_set)
+                avg_pH = 0;
+                avg_orp = 0;
+                avg_turbidity = 0;
+                counter = 0;
+            }
+            // keep summing the averages
+            avg_pH += sample.pH;
+            avg_orp += sample.orp;
+            avg_turbidity += sample.turbidity;
+            counter++;
+            i++;
+            last_date = current_date;
+            last_created_at = sample.created_at;
+        }
+        return water_set;
+    }
+
+    /**
+     * save values
+     */
     @Override
     public void onSaveInstanceState(Bundle outState) {
         Log.i("water/onSaveInstanceState", "saving state...");
@@ -197,16 +212,6 @@ public class MainActivity extends AppCompatActivity {
         outState.putString("pH", pH);
         outState.putString("orp", orp);
         outState.putString("turbidity", turbidity);
-        outState.putParcelableArrayList("water_set", water_set); // an ArrayList works as well if the object extends Parceable (or something like that)
-    }
-
-    // class used for inserting data to the chart
-    private class CustomDataEntry extends ValueDataEntry {
-
-        CustomDataEntry(String x, Number value, Number value2, Number value3) {
-            super(x, value);
-            setValue("value2", value2);
-            setValue("value3", value3);
-        }
+        outState.putParcelableArrayList("water_set", water_set);
     }
 }

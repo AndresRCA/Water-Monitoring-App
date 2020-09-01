@@ -1,5 +1,6 @@
 package helpers;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.anychart.AnyChart;
@@ -13,6 +14,7 @@ import com.anychart.enums.Anchor;
 import com.anychart.enums.MarkerType;
 import com.anychart.enums.TooltipPositionMode;
 import com.anychart.graphics.vector.Stroke;
+import com.example.watermonitoring.R;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -25,8 +27,10 @@ public class WaterChartHelper {
 
     private Cartesian cartesian;
     private Set set;
+    private Context context;
 
-    public WaterChartHelper(@NotNull ArrayList<WaterSample> water_set) {
+    public WaterChartHelper(Context app_context, @NotNull ArrayList<WaterSample> water_set) {
+        context = app_context;
         cartesian = AnyChart.line();
 
         cartesian.animation(true);
@@ -42,9 +46,9 @@ public class WaterChartHelper {
 
         cartesian.tooltip().positionMode(TooltipPositionMode.POINT);
 
-        cartesian.title("Parametros de calidad del agua");
+        cartesian.title(context.getString(R.string.chart_title));
 
-        cartesian.yAxis(0).title("Nivel");
+        cartesian.yAxis(0).title(context.getString(R.string.chart_y_title));
         cartesian.xAxis(0).labels().padding(5d, 5d, 5d, 5d);
 
         List<DataEntry> seriesData = new ArrayList<>();
@@ -61,7 +65,7 @@ public class WaterChartHelper {
         Mapping series3Mapping = set.mapAs("{ x: 'x', value: 'value3' }");
 
         Line series1 = cartesian.line(series1Mapping);
-        series1.name("pH");
+        series1.name(context.getString(R.string.chart_series1_name));
         series1.hovered().markers().enabled(true);
         series1.hovered().markers()
                 .type(MarkerType.CIRCLE)
@@ -73,7 +77,7 @@ public class WaterChartHelper {
                 .offsetY(5d);
 
         Line series2 = cartesian.line(series2Mapping);
-        series2.name("orp");
+        series2.name(context.getString(R.string.chart_series2_name));
         series2.hovered().markers().enabled(true);
         series2.hovered().markers()
                 .type(MarkerType.CIRCLE)
@@ -85,7 +89,7 @@ public class WaterChartHelper {
                 .offsetY(5d);
 
         Line series3 = cartesian.line(series3Mapping);
-        series3.name("turbidez");
+        series3.name(context.getString(R.string.chart_series3_name));
         series3.hovered().markers().enabled(true);
         series3.hovered().markers()
                 .type(MarkerType.CIRCLE)
@@ -106,7 +110,7 @@ public class WaterChartHelper {
     }
 
 
-    /**
+    /*
      * insert the data to be displayed to the chart.
      * @param series_data
      */
