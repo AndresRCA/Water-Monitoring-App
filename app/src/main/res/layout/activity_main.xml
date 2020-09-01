@@ -20,14 +20,21 @@
             android:layout_height="30dp"
             android:layout_marginEnd="10dp"
             android:layout_weight="1"
+            android:contentDescription="ph logo"
             app:srcCompat="@drawable/ph" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:layout_weight="1"
+            android:text="@string/ph_text" />
 
         <TextView
             android:id="@+id/pH"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:text="Nivel de pH" />
+            android:gravity="center_vertical" />
     </LinearLayout>
 
     <LinearLayout
@@ -42,14 +49,21 @@
             android:layout_height="30dp"
             android:layout_marginEnd="10dp"
             android:layout_weight="1"
+            android:contentDescription="orp logo"
             app:srcCompat="@drawable/orp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:layout_weight="1"
+            android:text="@string/orp_text" />
 
         <TextView
             android:id="@+id/orp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:text="Nivel de orp" />
+            android:gravity="center_vertical" />
 
     </LinearLayout>
 
@@ -65,14 +79,21 @@
             android:layout_height="30dp"
             android:layout_marginEnd="10dp"
             android:layout_weight="1"
+            android:contentDescription="turbidity logo"
             app:srcCompat="@drawable/turbidity" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:layout_weight="1"
+            android:text="@string/turbidity_text" />
 
         <TextView
             android:id="@+id/turbidity"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:text="Nivel de turbidez" />
+            android:gravity="center_vertical" />
     </LinearLayout>
 
     <com.anychart.AnyChartView

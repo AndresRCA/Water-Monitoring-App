@@ -55,14 +55,14 @@ public class MainActivity extends AppCompatActivity {
 
         if (pH == null || orp == null || turbidity == null) { // usually this data comes in a single object, so if pH is null then so is everyone else, but I evaluate the three variables for readability
             /* IMPORTANT: the first string in all of these is always the same, I should just make to TextViews and modify the second one where the value is shown */
-            mpH.setText(getString(R.string.ph_text) + " " + getString(R.string.connecting_to_server));
-            mOrp.setText(getString(R.string.orp_text) + " " + getString(R.string.connecting_to_server));
-            mTurbidity.setText(getString(R.string.turbidity_text) + " " + getString(R.string.connecting_to_server));
+            mpH.setText(getString(R.string.connecting_to_server));
+            mOrp.setText(getString(R.string.connecting_to_server));
+            mTurbidity.setText(getString(R.string.connecting_to_server));
         }
         else {
-            mpH.setText(getString(R.string.ph_text) + " " + pH);
-            mOrp.setText(getString(R.string.orp_text) + " " + orp);
-            mTurbidity.setText(getString(R.string.turbidity_text) + " " + turbidity);
+            mpH.setText(pH);
+            mOrp.setText(orp);
+            mTurbidity.setText(turbidity);
         }
 
 		// get username from intent
@@ -90,17 +90,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void connectComplete(boolean reconnect, String serverURI) {
                 Log.i("connection", "connection complete!");
-                mpH.setText(getString(R.string.ph_text) + " " + getString(R.string.waiting_for_data));
-                mOrp.setText(getString(R.string.orp_text) + " " + getString(R.string.waiting_for_data));
-                mTurbidity.setText(getString(R.string.turbidity_text) + " " + getString(R.string.waiting_for_data));
+                mpH.setText(getString(R.string.waiting_for_data));
+                mOrp.setText(getString(R.string.waiting_for_data));
+                mTurbidity.setText(getString(R.string.waiting_for_data));
             }
 
             @Override
             public void connectionLost(Throwable throwable) {
                 Log.i("connection", "connection lost");
-                mpH.setText(getString(R.string.ph_text) + " " + getString(R.string.connection_lost));
-                mOrp.setText(getString(R.string.orp_text) + " " + getString(R.string.connection_lost));
-                mTurbidity.setText(getString(R.string.turbidity_text) + " " + getString(R.string.connection_lost));
+                mpH.setText(getString(R.string.connection_lost));
+                mOrp.setText(getString(R.string.connection_lost));
+                mTurbidity.setText(getString(R.string.connection_lost));
             }
 
             @Override
@@ -112,9 +112,9 @@ public class MainActivity extends AppCompatActivity {
                 orp = jsonmsg.getString("orp");
                 turbidity = jsonmsg.getString("turbidity");
 
-                mpH.setText(getString(R.string.ph_text) + " " + pH);
-                mOrp.setText(getString(R.string.orp_text) + " " + orp);
-                mTurbidity.setText(getString(R.string.turbidity_text) + " " + turbidity);
+                mpH.setText(pH);
+                mOrp.setText(orp);
+                mTurbidity.setText(turbidity);
             }
 
             @Override

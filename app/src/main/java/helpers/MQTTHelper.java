@@ -14,13 +14,13 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 public class MQTTHelper {
     public MqttAndroidClient mqttAndroidClient;
 
-    final String server_uri = "tcp://tailor.cloudmqtt.com:12475";
+    private final String server_uri = "tcp://tailor.cloudmqtt.com:12475";
 
     final String client_id; // the client_id is the username of the client (username in the database)
     final String topic; // topic = "water/" + client_id
 
-    final String username = "qgdwogpe";
-    final String password = "o01oeATc9wc2";
+    private final String username = "qgdwogpe";
+    private final String password = "o01oeATc9wc2";
 
     public MQTTHelper(Context context, String client_id) {
 		this.client_id = client_id;
