@@ -41,7 +41,6 @@ public class MQTTHelper {
         mqttConnectOptions.setPassword(password.toCharArray());
 
         try {
-
             mqttAndroidClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
@@ -60,9 +59,7 @@ public class MQTTHelper {
                     Log.w("water/Mqtt", "Failed to connect to: " + server_uri + exception.toString());
                 }
             });
-
-
-        } catch (MqttException ex){
+        } catch (MqttException ex) {
             ex.printStackTrace();
         }
     }
@@ -81,7 +78,6 @@ public class MQTTHelper {
                     Log.w("water/Mqtt", "Subscription error");
                 }
             });
-
         } catch (MqttException ex) {
             System.err.println("Exception while subscribing");
             ex.printStackTrace();

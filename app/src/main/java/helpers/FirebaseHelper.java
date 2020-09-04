@@ -2,7 +2,6 @@ package helpers;
 
 import android.util.Log;
 
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -12,8 +11,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import models.WaterSample;
 
 public class FirebaseHelper {
@@ -71,56 +68,10 @@ public class FirebaseHelper {
     }
 
     /**
-     * set event listeners for the waterSamplesToWatch defined previously in setInitialWaterSet
-     */
-    public void setEventListeners(final WaterSetListenerCallback callback) {
-        if (waterSamplesToWatch == null) {
-            waterSamplesToWatch = waterSamples.orderByChild("created_at").startAt(start_date);
-        }
-
-        waterSamplesToWatch.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
-                Log.d("onChildAdded", dataSnapshot.getKey());
-                // A new water sample has been added
-                WaterSample sample = dataSnapshot.getValue(WaterSample.class);
-                sample.setKey(dataSnapshot.getKey());
-                callback.onChildAdded(sample); // do what you want with the sample added
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Log.d("onChildRemoved", dataSnapshot.getKey());
-                WaterSample sample = dataSnapshot.getValue(WaterSample.class);
-                sample.setKey(dataSnapshot.getKey());
-                callback.onChildRemoved(sample); // do what you want with the child that was removed
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        });
-    }
-
-    /**
      * interface for callbacks in setInitialWaterSet()
      */
     public interface WaterSetCallback {
         void onSuccess(ArrayList<WaterSample> water_set);
         void onFailure();
     }
-
-    public interface WaterSetListenerCallback {
-        void onChildAdded(WaterSample sample);
-        void onChildRemoved(WaterSample sample);
-    }
-
 }
