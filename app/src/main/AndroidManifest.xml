@@ -16,7 +16,8 @@
         android:theme="@style/Theme.AppCompat">
         <activity
             android:name=".MainActivity"
-            android:label="@string/main_activity"></activity>
+            android:label="@string/main_activity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
             android:name=".LoginActivity"
             android:label="@string/login_activity">
