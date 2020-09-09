@@ -115,11 +115,10 @@ public class WaterChartHelper {
         return cartesian;
     }
 
-    public Cartesian createChart(String title, String series_name, String y_title, List<DataEntry> series_data) {
+    public Cartesian createChart(String title, String series_name, String y_title, String line_color, List<DataEntry> series_data) {
         Cartesian cartesian = AnyChart.line();
 
         cartesian.animation(true);
-
         cartesian.padding(10d, 20d, 5d, 20d);
         cartesian.background().fill("#404040");
 
@@ -152,6 +151,7 @@ public class WaterChartHelper {
                 .anchor(Anchor.LEFT_CENTER)
                 .offsetX(5d)
                 .offsetY(5d);
+        series1.stroke(line_color);
 
         cartesian.legend().enabled(true);
         cartesian.legend().fontSize(13d);

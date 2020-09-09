@@ -22,27 +22,17 @@
             android:layout_marginBottom="10dp"
             android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/imageView3"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginEnd="10dp"
-                android:layout_weight="1"
-                android:contentDescription="ph logo"
-                app:srcCompat="@drawable/ph" />
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:drawableLeft="@drawable/ph"
                 android:layout_weight="1"
-                android:gravity="center_vertical"
                 android:text="@string/ph_text" />
 
             <TextView
                 android:id="@+id/pH"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical" />
+                android:layout_height="match_parent" />
         </LinearLayout>
 
         <LinearLayout
@@ -51,21 +41,13 @@
             android:layout_marginBottom="10dp"
             android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/imageView4"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginEnd="10dp"
-                android:layout_weight="1"
-                android:contentDescription="orp logo"
-                app:srcCompat="@drawable/orp" />
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="@string/orp_text" />
+                android:text="@string/orp_text"
+                android:drawableStart="@drawable/orp"/>
 
             <TextView
                 android:id="@+id/orp"
@@ -81,21 +63,13 @@
             android:layout_marginBottom="10dp"
             android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/imageView5"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginEnd="10dp"
-                android:layout_weight="1"
-                android:contentDescription="turbidity logo"
-                app:srcCompat="@drawable/turbidity" />
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="@string/turbidity_text" />
+                android:text="@string/turbidity_text"
+                android:drawableStart="@drawable/turbidity"/>
 
             <TextView
                 android:id="@+id/turbidity"
@@ -110,21 +84,13 @@
             android:layout_marginBottom="10dp"
             android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/imageView6"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginEnd="10dp"
-                android:layout_weight="1"
-                android:contentDescription="temperature logo"
-                app:srcCompat="@drawable/temperature" />
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="@string/temperature_text" />
+                android:text="@string/temperature_text"
+                android:drawableStart="@drawable/temperature"/>
 
             <TextView
                 android:id="@+id/temperature"
@@ -151,54 +117,54 @@
             android:layout_height="match_parent" />
     </com.anychart.AnyChartView>
 
-    <Button
+    <ImageButton
         android:id="@+id/ph_btn"
         android:onClick="loadpHChart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="2dp"
         android:layout_marginEnd="2dp"
-        android:text="@string/pH"
         app:layout_constraintTop_toBottomOf="@+id/any_chart_view"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/orp_btn"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="673dp" />
+        app:srcCompat="@drawable/ph" />
 
-    <Button
+    <ImageButton
         android:id="@+id/orp_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
         android:onClick="loadORPChart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="2dp"
-        android:layout_marginEnd="2dp"
-        android:text="@string/orp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/ph_btn"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/turbidity_btn"
-        app:layout_constraintStart_toEndOf="@+id/ph_btn" />
+        app:layout_constraintStart_toEndOf="@+id/ph_btn"
+        app:srcCompat="@drawable/orp" />
 
-    <Button
+    <ImageButton
         android:id="@+id/turbidity_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
         android:onClick="loadTurbidityChart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="2dp"
-        android:layout_marginEnd="2dp"
-        android:text="@string/turbidity"
-        app:layout_constraintBaseline_toBaselineOf="@+id/orp_btn"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/temperature_btn"
-        app:layout_constraintStart_toEndOf="@+id/orp_btn" />
+        app:layout_constraintStart_toEndOf="@+id/orp_btn"
+        app:srcCompat="@drawable/turbidity" />
 
-    <Button
+    <ImageButton
         android:id="@+id/temperature_btn"
-        android:onClick="loadTemperatureChart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="2dp"
         android:layout_marginEnd="2dp"
-        android:text="@string/temperature"
-        app:layout_constraintBaseline_toBaselineOf="@+id/turbidity_btn"
+        android:contentDescription="select temperature chart"
+        android:onClick="loadTemperatureChart"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/turbidity_btn" />
+        app:layout_constraintStart_toEndOf="@+id/turbidity_btn"
+        app:srcCompat="@drawable/temperature" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

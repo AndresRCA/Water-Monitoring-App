@@ -225,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // create chart
-        Cartesian ph_chart = chart.createChart("pH Levels", "pH", "pH", series_data);
+        Cartesian ph_chart = chart.createChart("pH Levels", "pH", "pH", "#74cc62", series_data);
         anyChartView.setChart(ph_chart);
     }
 
@@ -240,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // create chart
-        Cartesian orp_chart = chart.createChart("ORP Levels", "ORP", "mV", series_data);
+        Cartesian orp_chart = chart.createChart("ORP Levels", "ORP", "mV", "#c798bc",series_data);
         anyChartView.setChart(orp_chart);
     }
 
@@ -255,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // create chart
-        Cartesian turbidity_chart = chart.createChart("Turbidity Levels", "Turbidity", "NTU", series_data);
+        Cartesian turbidity_chart = chart.createChart("Turbidity Levels", "Turbidity", "NTU", "#b1710f", series_data);
         anyChartView.setChart(turbidity_chart);
     }
 
@@ -271,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // create chart
-        Cartesian temperature_chart = chart.createChart("Temperature Levels", "Temperature", "C", series_data);
+        Cartesian temperature_chart = chart.createChart("Temperature Levels", "Temperature", "C", "#cc4d29", series_data);
         anyChartView.setChart(temperature_chart);
     }
 
