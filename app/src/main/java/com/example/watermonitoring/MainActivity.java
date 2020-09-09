@@ -3,6 +3,7 @@ package com.example.watermonitoring;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import com.anychart.AnyChartView;
@@ -208,6 +209,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return chart_water_set;
+    }
+
+    public void loadpHChart(View view) {
+    }
+
+    public void loadORPChart(View view) {
+    }
+
+    public void loadTurbidityChart(View view) {
+    }
+
+    public void loadTemperatureChart(View view) {
     }
 
     /**

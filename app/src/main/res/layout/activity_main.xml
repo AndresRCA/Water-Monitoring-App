@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,97 +9,140 @@
     tools:context=".MainActivity">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:id="@+id/water_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/imageView3"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginEnd="10dp"
-            android:layout_weight="1"
-            android:contentDescription="ph logo"
-            app:srcCompat="@drawable/ph" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:layout_weight="1"
-            android:text="@string/ph_text" />
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="1"
+                android:contentDescription="ph logo"
+                app:srcCompat="@drawable/ph" />
 
-        <TextView
-            android:id="@+id/pH"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical" />
-    </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="@string/ph_text" />
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
+            <TextView
+                android:id="@+id/pH"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical" />
+        </LinearLayout>
 
-        <ImageView
-            android:id="@+id/imageView4"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginEnd="10dp"
-            android:layout_weight="1"
-            android:contentDescription="orp logo"
-            app:srcCompat="@drawable/orp" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:layout_weight="1"
-            android:text="@string/orp_text" />
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="1"
+                android:contentDescription="orp logo"
+                app:srcCompat="@drawable/orp" />
 
-        <TextView
-            android:id="@+id/orp"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="@string/orp_text" />
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/orp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical" />
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
+        </LinearLayout>
 
-        <ImageView
-            android:id="@+id/imageView5"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginEnd="10dp"
-            android:layout_weight="1"
-            android:contentDescription="turbidity logo"
-            app:srcCompat="@drawable/turbidity" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:layout_weight="1"
-            android:text="@string/turbidity_text" />
+            <ImageView
+                android:id="@+id/imageView5"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="1"
+                android:contentDescription="turbidity logo"
+                app:srcCompat="@drawable/turbidity" />
 
-        <TextView
-            android:id="@+id/turbidity"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="@string/turbidity_text" />
+
+            <TextView
+                android:id="@+id/turbidity"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/imageView6"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="1"
+                android:contentDescription="temperature logo"
+                app:srcCompat="@drawable/temperature" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="@string/temperature_text" />
+
+            <TextView
+                android:id="@+id/temperature"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical" />
+        </LinearLayout>
     </LinearLayout>
 
     <com.anychart.AnyChartView
         android:id="@+id/any_chart_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/ph_btn"
+        app:layout_constraintTop_toBottomOf="@+id/water_container"
+        tools:layout_editor_absoluteX="6dp">
 
         <ProgressBar
             android:id="@+id/progress_bar"
@@ -107,4 +150,55 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </com.anychart.AnyChartView>
-</LinearLayout>
+
+    <Button
+        android:id="@+id/ph_btn"
+        android:onClick="loadpHChart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:text="@string/pH"
+        app:layout_constraintTop_toBottomOf="@+id/any_chart_view"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/orp_btn"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="673dp" />
+
+    <Button
+        android:id="@+id/orp_btn"
+        android:onClick="loadORPChart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:text="@string/orp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/ph_btn"
+        app:layout_constraintEnd_toStartOf="@+id/turbidity_btn"
+        app:layout_constraintStart_toEndOf="@+id/ph_btn" />
+
+    <Button
+        android:id="@+id/turbidity_btn"
+        android:onClick="loadTurbidityChart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:text="@string/turbidity"
+        app:layout_constraintBaseline_toBaselineOf="@+id/orp_btn"
+        app:layout_constraintEnd_toStartOf="@+id/temperature_btn"
+        app:layout_constraintStart_toEndOf="@+id/orp_btn" />
+
+    <Button
+        android:id="@+id/temperature_btn"
+        android:onClick="loadTemperatureChart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:text="@string/temperature"
+        app:layout_constraintBaseline_toBaselineOf="@+id/turbidity_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/turbidity_btn" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
