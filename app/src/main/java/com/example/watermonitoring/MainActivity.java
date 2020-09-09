@@ -7,6 +7,9 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.anychart.AnyChartView;
+import com.anychart.chart.common.dataentry.DataEntry;
+import com.anychart.chart.common.dataentry.ValueDataEntry;
+import com.anychart.charts.Cartesian;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
@@ -16,6 +19,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import helpers.FirebaseHelper;
 import helpers.MQTTHelper;
@@ -144,8 +148,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(ArrayList<WaterSample> waterSet) {
                     chart_water_set = getDailySamplesAvg(waterSet); // get the daily averages for the time interval specified in setInitialWaterSet()
-                    chart = new WaterChartHelper(getApplicationContext(), chart_water_set); // create a chart
-                    anyChartView.setChart(chart.getCartesian()); // display chart
+                    loadpHChart(mpH);
                 }
 
                 @Override
@@ -156,9 +159,8 @@ public class MainActivity extends AppCompatActivity {
         else {
             Log.i("water/initChart", "chart_water_set is not null");
 
-            // display the existing chart
-            chart = new WaterChartHelper(getApplicationContext(), chart_water_set); // create a chart
-            anyChartView.setChart(chart.getCartesian());
+            // display the existing chart (add a switch statement for checking the current selected chart later)
+            loadpHChart(mpH);
         }
     }
 
@@ -212,15 +214,65 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadpHChart(View view) {
+        WaterChartHelper chart = new WaterChartHelper();
+        // should probably call anyChartView.clear()? it keeps loading the same chart as when it was initialized
+        anyChartView.setProgressBar(findViewById(R.id.progress_bar));
+
+        // create data from main water_set
+        List<DataEntry> series_data = new ArrayList<>();
+        for (WaterChartItem item : chart_water_set) {
+            series_data.add(new ValueDataEntry(item.sample.getStrDate("dd/MM"), item.sample.pH));
+        }
+
+        // create chart
+        Cartesian ph_chart = chart.createChart("pH Levels", "pH", "pH", series_data);
+        anyChartView.setChart(ph_chart);
     }
 
     public void loadORPChart(View view) {
+        WaterChartHelper chart = new WaterChartHelper();
+        anyChartView.setProgressBar(findViewById(R.id.progress_bar));
+
+        // create data from main water_set
+        List<DataEntry> series_data = new ArrayList<>();
+        for (WaterChartItem item : chart_water_set) {
+            series_data.add(new ValueDataEntry(item.sample.getStrDate("dd/MM"), item.sample.orp));
+        }
+
+        // create chart
+        Cartesian orp_chart = chart.createChart("ORP Levels", "ORP", "mV", series_data);
+        anyChartView.setChart(orp_chart);
     }
 
     public void loadTurbidityChart(View view) {
+        WaterChartHelper chart = new WaterChartHelper();
+        anyChartView.setProgressBar(findViewById(R.id.progress_bar));
+
+        // create data from main water_set
+        List<DataEntry> series_data = new ArrayList<>();
+        for (WaterChartItem item : chart_water_set) {
+            series_data.add(new ValueDataEntry(item.sample.getStrDate("dd/MM"), item.sample.turbidity));
+        }
+
+        // create chart
+        Cartesian turbidity_chart = chart.createChart("Turbidity Levels", "Turbidity", "NTU", series_data);
+        anyChartView.setChart(turbidity_chart);
     }
 
+    // temperature is still missing
     public void loadTemperatureChart(View view) {
+        WaterChartHelper chart = new WaterChartHelper();
+        anyChartView.setProgressBar(findViewById(R.id.progress_bar));
+
+        // create data from main water_set
+        List<DataEntry> series_data = new ArrayList<>();
+        for (WaterChartItem item : chart_water_set) {
+            series_data.add(new ValueDataEntry(item.sample.getStrDate("dd/MM"), item.sample.pH));
+        }
+
+        // create chart
+        Cartesian temperature_chart = chart.createChart("Temperature Levels", "Temperature", "C", series_data);
+        anyChartView.setChart(temperature_chart);
     }
 
     /**

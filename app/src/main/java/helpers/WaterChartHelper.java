@@ -31,6 +31,10 @@ public class WaterChartHelper {
     private Set set;
     private Context context;
 
+    public WaterChartHelper() {
+
+    }
+
     public WaterChartHelper(Context app_context, @NotNull ArrayList<WaterChartItem> water_set) {
         context = app_context;
         cartesian = AnyChart.line();
@@ -111,18 +115,49 @@ public class WaterChartHelper {
         return cartesian;
     }
 
-    // improve this function...
-    /*
-     * insert the data to be displayed to the chart.
-     * @param series_data
-     */
-    public void insertSeriesData(ArrayList<WaterChartItem> chart_data) {
-        Log.i("water/insertSeriesData", "inserting data... " + chart_data.size() + " values");
-        List<DataEntry> seriesData = new ArrayList<>();
-        for (WaterChartItem item : chart_data) {
-            seriesData.add(new CustomDataEntry(item.sample.getStrDate("dd/MM"), item.sample.pH, item.sample.orp, item.sample.turbidity));
-        }
-        set.data(seriesData); // this will refresh the chart with the new data
+    public Cartesian createChart(String title, String series_name, String y_title, List<DataEntry> series_data) {
+        Cartesian cartesian = AnyChart.line();
+
+        cartesian.animation(true);
+
+        cartesian.padding(10d, 20d, 5d, 20d);
+        cartesian.background().fill("#404040");
+
+        cartesian.crosshair().enabled(true);
+        cartesian.crosshair()
+                .yLabel(true)
+                // TODO ystroke
+                .yStroke((Stroke) null, null, null, (String) null, (String) null);
+
+        cartesian.tooltip().positionMode(TooltipPositionMode.POINT);
+
+        cartesian.title(title);
+
+        cartesian.yAxis(0).title(y_title);
+        cartesian.xAxis(0).labels().padding(5d, 5d, 5d, 5d);
+
+        Set set = Set.instantiate();
+        Log.i("water/WaterChartHelper", "inserting data... " + series_data.size() + " values");
+        set.data(series_data);
+        Mapping series1Mapping = set.mapAs("{ x: 'x', value: 'value' }");
+
+        Line series1 = cartesian.line(series1Mapping);
+        series1.name(series_name);
+        series1.hovered().markers().enabled(true);
+        series1.hovered().markers()
+                .type(MarkerType.CIRCLE)
+                .size(4d);
+        series1.tooltip()
+                .position("right")
+                .anchor(Anchor.LEFT_CENTER)
+                .offsetX(5d)
+                .offsetY(5d);
+
+        cartesian.legend().enabled(true);
+        cartesian.legend().fontSize(13d);
+        cartesian.legend().padding(0d, 0d, 10d, 0d);
+
+        return cartesian;
     }
 
     private class CustomDataEntry extends ValueDataEntry {
