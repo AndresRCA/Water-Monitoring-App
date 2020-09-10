@@ -7,18 +7,10 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.anychart.APIlib;
-import com.anychart.AnyChart;
 import com.anychart.AnyChartView;
 import com.anychart.chart.common.dataentry.DataEntry;
 import com.anychart.chart.common.dataentry.ValueDataEntry;
 import com.anychart.charts.Cartesian;
-import com.anychart.core.cartesian.series.Line;
-import com.anychart.data.Mapping;
-import com.anychart.data.Set;
-import com.anychart.enums.Anchor;
-import com.anychart.enums.MarkerType;
-import com.anychart.enums.TooltipPositionMode;
-import com.anychart.graphics.vector.Stroke;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
@@ -45,7 +37,10 @@ public class MainActivity extends AppCompatActivity {
 
 	ArrayList<WaterChartItem> chart_water_set; // the water set to be processed in WaterChartHelper, distinct from water_set in FirebaseHelper (unprocessed data)
 	WaterChartHelper chartHelper;
-    AnyChartView anyChartView;
+    AnyChartView phChartView;
+    AnyChartView orpChartView;
+    AnyChartView turbidityChartView;
+    AnyChartView temperatureChartView;
 
     // water quality parameters
     TextView mpH, mOrp, mTurbidity;
@@ -64,10 +59,16 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
+        // mqtt values TextView
         mpH = findViewById(R.id.pH);
         mOrp = findViewById(R.id.orp);
         mTurbidity = findViewById(R.id.turbidity);
-        anyChartView = findViewById(R.id.any_chart_view);
+
+        // charts
+        phChartView = findViewById(R.id.ph_chart_view);
+        orpChartView = findViewById(R.id.orp_chart_view);
+        turbidityChartView = findViewById(R.id.turbidity_chart_view);
+        temperatureChartView = findViewById(R.id.temperature_chart_view);
 
         if (pH == null || orp == null || turbidity == null) { // usually this data comes in a single object, so if pH is null then so is everyone else, but I evaluate the three variables for readability
             mpH.setText(getString(R.string.connecting_to_server));
@@ -144,8 +145,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initChart() {
-        anyChartView.setDebug(true);
-        anyChartView.setProgressBar(findViewById(R.id.progress_bar));  // display progress bar while retrieving the data to be used in the chart
+        phChartView.setDebug(true);
+        orpChartView.setDebug(true);
+        turbidityChartView.setDebug(true);
+        temperatureChartView.setDebug(true);
         chartHelper = new WaterChartHelper();
         if (chart_water_set == null) { // retrieve the data from the db to display it in the chart
             Log.i("water/initChart", "series_data is null, calling db.setInitialWaterSet");
@@ -159,7 +162,16 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(ArrayList<WaterSample> waterSet) {
                     chart_water_set = getDailySamplesAvg(waterSet); // get the daily averages for the time interval specified in setInitialWaterSet()
-                    loadpHChart(mpH);
+                    loadpHChart(); // initial chart to show is pH, that's why I don't turn it invisible
+
+                    loadORPChart();
+                    orpChartView.setVisibility(View.INVISIBLE);
+
+                    loadTurbidityChart();
+                    turbidityChartView.setVisibility(View.INVISIBLE);
+
+                    loadTemperatureChart();
+                    temperatureChartView.setVisibility(View.INVISIBLE);
                 }
 
                 @Override
@@ -171,7 +183,16 @@ public class MainActivity extends AppCompatActivity {
             Log.i("water/initChart", "chart_water_set is not null");
 
             // display the existing chart (add a switch statement for checking the current selected chart later)
-            loadpHChart(mpH);
+            loadpHChart(); // initial chart to show is pH, that's why I don't turn it invisible
+
+            loadORPChart();
+            orpChartView.setVisibility(View.INVISIBLE);
+
+            loadTurbidityChart();
+            turbidityChartView.setVisibility(View.INVISIBLE);
+
+            loadTemperatureChart();
+            temperatureChartView.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -224,8 +245,9 @@ public class MainActivity extends AppCompatActivity {
         return chart_water_set;
     }
 
-    public void loadpHChart(View view) {
-        anyChartView.setProgressBar(findViewById(R.id.progress_bar));
+    public void loadpHChart() {
+        APIlib.getInstance().setActiveAnyChartView(phChartView);
+        phChartView.setProgressBar(findViewById(R.id.ph_progress_bar));
 
         // create data from main water_set
         List<DataEntry> series_data = new ArrayList<>();
@@ -235,11 +257,12 @@ public class MainActivity extends AppCompatActivity {
 
         // create chart
         Cartesian ph_chart = chartHelper.createChart("pH Levels", "pH", "pH", "#74cc62", series_data);
-        anyChartView.setChart(ph_chart);
+        phChartView.setChart(ph_chart);
     }
 
-    public void loadORPChart(View view) {
-        anyChartView.setProgressBar(findViewById(R.id.progress_bar));
+    public void loadORPChart() {
+        APIlib.getInstance().setActiveAnyChartView(orpChartView);
+        orpChartView.setProgressBar(findViewById(R.id.orp_progress_bar));
 
         // create data from main water_set
         List<DataEntry> series_data = new ArrayList<>();
@@ -249,12 +272,12 @@ public class MainActivity extends AppCompatActivity {
 
         // create chart
         Cartesian orp_chart = chartHelper.createChart("ORP Levels", "ORP", "mV", "#c798bc", series_data);
-        anyChartView.setChart(orp_chart);
+        orpChartView.setChart(orp_chart);
     }
 
-    public void loadTurbidityChart(View view) {
-        WaterChartHelper chart = new WaterChartHelper();
-        anyChartView.setProgressBar(findViewById(R.id.progress_bar));
+    public void loadTurbidityChart() {
+        APIlib.getInstance().setActiveAnyChartView(turbidityChartView);
+        turbidityChartView.setProgressBar(findViewById(R.id.turbidity_progress_bar));
 
         // create data from main water_set
         List<DataEntry> series_data = new ArrayList<>();
@@ -263,14 +286,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // create chart
-        Cartesian turbidity_chart = chart.createChart("Turbidity Levels", "Turbidity", "NTU", "#b1710f", series_data);
-        anyChartView.setChart(turbidity_chart);
+        Cartesian turbidity_chart = chartHelper.createChart("Turbidity Levels", "Turbidity", "NTU", "#b1710f", series_data);
+        turbidityChartView.setChart(turbidity_chart);
     }
 
     // temperature is still missing
-    public void loadTemperatureChart(View view) {
-        WaterChartHelper chart = new WaterChartHelper();
-        anyChartView.setProgressBar(findViewById(R.id.progress_bar));
+    public void loadTemperatureChart() {
+        APIlib.getInstance().setActiveAnyChartView(temperatureChartView);
+        temperatureChartView.setProgressBar(findViewById(R.id.temperature_progress_bar));
 
         // create data from main water_set
         List<DataEntry> series_data = new ArrayList<>();
@@ -279,8 +302,36 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // create chart
-        Cartesian temperature_chart = chart.createChart("Temperature Levels", "Temperature", "C", "#cc4d29", series_data);
-        anyChartView.setChart(temperature_chart);
+        Cartesian temperature_chart = chartHelper.createChart("Temperature Levels", "Temperature", "C", "#cc4d29", series_data);
+        temperatureChartView.setChart(temperature_chart);
+    }
+
+    public void showpHChart(View view) {
+        orpChartView.setVisibility(View.INVISIBLE);
+        turbidityChartView.setVisibility(View.INVISIBLE);
+        temperatureChartView.setVisibility(View.INVISIBLE);
+        phChartView.setVisibility(View.VISIBLE);
+    }
+
+    public void showORPChart(View view) {
+        phChartView.setVisibility(View.INVISIBLE);
+        turbidityChartView.setVisibility(View.INVISIBLE);
+        temperatureChartView.setVisibility(View.INVISIBLE);
+        orpChartView.setVisibility(View.VISIBLE);
+    }
+
+    public void showTurbidityChart(View view) {
+        phChartView.setVisibility(View.INVISIBLE);
+        orpChartView.setVisibility(View.INVISIBLE);
+        temperatureChartView.setVisibility(View.INVISIBLE);
+        turbidityChartView.setVisibility(View.VISIBLE);
+    }
+
+    public void showTemperatureChart(View view) {
+        phChartView.setVisibility(View.INVISIBLE);
+        orpChartView.setVisibility(View.INVISIBLE);
+        turbidityChartView.setVisibility(View.INVISIBLE);
+        temperatureChartView.setVisibility(View.VISIBLE);
     }
 
     /**
