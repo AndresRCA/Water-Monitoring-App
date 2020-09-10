@@ -6,10 +6,19 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.anychart.APIlib;
+import com.anychart.AnyChart;
 import com.anychart.AnyChartView;
 import com.anychart.chart.common.dataentry.DataEntry;
 import com.anychart.chart.common.dataentry.ValueDataEntry;
 import com.anychart.charts.Cartesian;
+import com.anychart.core.cartesian.series.Line;
+import com.anychart.data.Mapping;
+import com.anychart.data.Set;
+import com.anychart.enums.Anchor;
+import com.anychart.enums.MarkerType;
+import com.anychart.enums.TooltipPositionMode;
+import com.anychart.graphics.vector.Stroke;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
@@ -35,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 	String username;
 
 	ArrayList<WaterChartItem> chart_water_set; // the water set to be processed in WaterChartHelper, distinct from water_set in FirebaseHelper (unprocessed data)
-	WaterChartHelper chart;
+	WaterChartHelper chartHelper;
     AnyChartView anyChartView;
 
     // water quality parameters
@@ -135,7 +144,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initChart() {
+        anyChartView.setDebug(true);
         anyChartView.setProgressBar(findViewById(R.id.progress_bar));  // display progress bar while retrieving the data to be used in the chart
+        chartHelper = new WaterChartHelper();
         if (chart_water_set == null) { // retrieve the data from the db to display it in the chart
             Log.i("water/initChart", "series_data is null, calling db.setInitialWaterSet");
 
@@ -214,8 +225,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadpHChart(View view) {
-        WaterChartHelper chart = new WaterChartHelper();
-        // should probably call anyChartView.clear()? it keeps loading the same chart as when it was initialized
         anyChartView.setProgressBar(findViewById(R.id.progress_bar));
 
         // create data from main water_set
@@ -225,12 +234,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // create chart
-        Cartesian ph_chart = chart.createChart("pH Levels", "pH", "pH", "#74cc62", series_data);
+        Cartesian ph_chart = chartHelper.createChart("pH Levels", "pH", "pH", "#74cc62", series_data);
         anyChartView.setChart(ph_chart);
     }
 
     public void loadORPChart(View view) {
-        WaterChartHelper chart = new WaterChartHelper();
         anyChartView.setProgressBar(findViewById(R.id.progress_bar));
 
         // create data from main water_set
@@ -240,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // create chart
-        Cartesian orp_chart = chart.createChart("ORP Levels", "ORP", "mV", "#c798bc",series_data);
+        Cartesian orp_chart = chartHelper.createChart("ORP Levels", "ORP", "mV", "#c798bc", series_data);
         anyChartView.setChart(orp_chart);
     }
 
