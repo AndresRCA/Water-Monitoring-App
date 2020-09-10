@@ -41,6 +41,12 @@ public class MainActivity extends AppCompatActivity {
     AnyChartView orpChartView;
     AnyChartView turbidityChartView;
     AnyChartView temperatureChartView;
+    // selected chart status
+    int selected_chart = PH;
+    public static final int PH = 1;
+    public static final int ORP = 2;
+    public static final int TURBIDITY = 3;
+    public static final int TEMPERATURE = 4;
 
     // water quality parameters
     TextView mpH, mOrp, mTurbidity, mTemperature;
@@ -56,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
             turbidity = savedInstanceState.getString("pH");
             temperature = savedInstanceState.getString("temperature");
             chart_water_set = savedInstanceState.getParcelableArrayList("chart_water_set");
+            selected_chart = savedInstanceState.getInt("selected_chart");
         }
 
         setContentView(R.layout.activity_main);
@@ -167,14 +174,12 @@ public class MainActivity extends AppCompatActivity {
                 public void onSuccess(ArrayList<WaterSample> waterSet) {
                     chart_water_set = getDailySamplesAvg(waterSet); // get the daily averages for the time interval specified in setInitialWaterSet()
                     loadpHChart(); // initial chart to show is pH, that's why I don't turn it invisible
-
                     loadORPChart();
-                    orpChartView.setVisibility(View.INVISIBLE);
-
                     loadTurbidityChart();
-                    turbidityChartView.setVisibility(View.INVISIBLE);
-
                     loadTemperatureChart();
+
+                    orpChartView.setVisibility(View.INVISIBLE);
+                    turbidityChartView.setVisibility(View.INVISIBLE);
                     temperatureChartView.setVisibility(View.INVISIBLE);
                 }
 
@@ -186,17 +191,31 @@ public class MainActivity extends AppCompatActivity {
         else {
             Log.i("water/initChart", "chart_water_set is not null");
 
-            // display the existing chart (add a switch statement for checking the current selected chart later)
-            loadpHChart(); // initial chart to show is pH, that's why I don't turn it invisible
-
+            // load charts
+            loadpHChart();
             loadORPChart();
-            orpChartView.setVisibility(View.INVISIBLE);
-
             loadTurbidityChart();
-            turbidityChartView.setVisibility(View.INVISIBLE);
-
             loadTemperatureChart();
+            // set every chart to invisible
+            phChartView.setVisibility(View.INVISIBLE);
+            orpChartView.setVisibility(View.INVISIBLE);
+            turbidityChartView.setVisibility(View.INVISIBLE);
             temperatureChartView.setVisibility(View.INVISIBLE);
+            // make visible the current selected chart
+            switch (selected_chart) {
+                case PH:
+                    phChartView.setVisibility(View.VISIBLE);
+                    break;
+                case ORP:
+                    orpChartView.setVisibility(View.VISIBLE);
+                    break;
+                case TURBIDITY:
+                    turbidityChartView.setVisibility(View.VISIBLE);
+                    break;
+                case TEMPERATURE:
+                    temperatureChartView.setVisibility(View.VISIBLE);
+                    break;
+            }
         }
     }
 
@@ -317,6 +336,7 @@ public class MainActivity extends AppCompatActivity {
         turbidityChartView.setVisibility(View.INVISIBLE);
         temperatureChartView.setVisibility(View.INVISIBLE);
         phChartView.setVisibility(View.VISIBLE);
+        selected_chart = PH;
     }
 
     public void showORPChart(View view) {
@@ -324,6 +344,7 @@ public class MainActivity extends AppCompatActivity {
         turbidityChartView.setVisibility(View.INVISIBLE);
         temperatureChartView.setVisibility(View.INVISIBLE);
         orpChartView.setVisibility(View.VISIBLE);
+        selected_chart = ORP;
     }
 
     public void showTurbidityChart(View view) {
@@ -331,6 +352,7 @@ public class MainActivity extends AppCompatActivity {
         orpChartView.setVisibility(View.INVISIBLE);
         temperatureChartView.setVisibility(View.INVISIBLE);
         turbidityChartView.setVisibility(View.VISIBLE);
+        selected_chart = TURBIDITY;
     }
 
     public void showTemperatureChart(View view) {
@@ -338,6 +360,7 @@ public class MainActivity extends AppCompatActivity {
         orpChartView.setVisibility(View.INVISIBLE);
         turbidityChartView.setVisibility(View.INVISIBLE);
         temperatureChartView.setVisibility(View.VISIBLE);
+        selected_chart = TEMPERATURE;
     }
 
     /**
@@ -353,5 +376,6 @@ public class MainActivity extends AppCompatActivity {
         outState.putString("turbidity", turbidity);
         outState.putString("temperature", temperature);
         outState.putParcelableArrayList("chart_water_set", chart_water_set);
+        outState.putInt("selected_chart", selected_chart);
     }
 }
