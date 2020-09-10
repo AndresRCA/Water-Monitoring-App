@@ -43,8 +43,8 @@ public class MainActivity extends AppCompatActivity {
     AnyChartView temperatureChartView;
 
     // water quality parameters
-    TextView mpH, mOrp, mTurbidity;
-    String pH, orp, turbidity;
+    TextView mpH, mOrp, mTurbidity, mTemperature;
+    String pH, orp, turbidity, temperature;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
             pH = savedInstanceState.getString("pH");
             orp = savedInstanceState.getString("orp");
             turbidity = savedInstanceState.getString("pH");
+            temperature = savedInstanceState.getString("temperature");
             chart_water_set = savedInstanceState.getParcelableArrayList("chart_water_set");
         }
 
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         mpH = findViewById(R.id.pH);
         mOrp = findViewById(R.id.orp);
         mTurbidity = findViewById(R.id.turbidity);
+        mTemperature = findViewById(R.id.temperature);
 
         // charts
         phChartView = findViewById(R.id.ph_chart_view);
@@ -70,15 +72,17 @@ public class MainActivity extends AppCompatActivity {
         turbidityChartView = findViewById(R.id.turbidity_chart_view);
         temperatureChartView = findViewById(R.id.temperature_chart_view);
 
-        if (pH == null || orp == null || turbidity == null) { // usually this data comes in a single object, so if pH is null then so is everyone else, but I evaluate the three variables for readability
+        if (pH == null || orp == null || turbidity == null || temperature == null) { // usually this data comes in a single object, so if pH is null then so is everyone else, but I evaluate the three variables for readability
             mpH.setText(getString(R.string.connecting_to_server));
             mOrp.setText(getString(R.string.connecting_to_server));
             mTurbidity.setText(getString(R.string.connecting_to_server));
+            mTemperature.setText(getString(R.string.connecting_to_server));
         }
         else {
-            mpH.setText(pH);
-            mOrp.setText(orp);
-            mTurbidity.setText(turbidity);
+            mpH.setText(pH + " pH");
+            mOrp.setText(orp + " mV");
+            mTurbidity.setText(turbidity + " NTU");
+            mTemperature.setText(temperature + " °C");
         }
 
 		// get username from intent
@@ -109,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 mpH.setText(getString(R.string.waiting_for_data));
                 mOrp.setText(getString(R.string.waiting_for_data));
                 mTurbidity.setText(getString(R.string.waiting_for_data));
+                mTemperature.setText(getString(R.string.waiting_for_data));
             }
 
             @Override
@@ -117,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
                 mpH.setText(getString(R.string.connection_lost));
                 mOrp.setText(getString(R.string.connection_lost));
                 mTurbidity.setText(getString(R.string.connection_lost));
+                mTemperature.setText(getString(R.string.connection_lost));
             }
 
             @Override
@@ -127,10 +133,12 @@ public class MainActivity extends AppCompatActivity {
                 pH = jsonmsg.getString("pH");
                 orp = jsonmsg.getString("orp");
                 turbidity = jsonmsg.getString("turbidity");
+                temperature = jsonmsg.getString("temperature");
 
-                mpH.setText(pH);
-                mOrp.setText(orp);
-                mTurbidity.setText(turbidity);
+                mpH.setText(pH + " pH");
+                mOrp.setText(orp + " mV");
+                mTurbidity.setText(turbidity + " NTU");
+                mTemperature.setText(temperature + " °C");
             }
 
             @Override
@@ -145,10 +153,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initChart() {
-        phChartView.setDebug(true);
-        orpChartView.setDebug(true);
-        turbidityChartView.setDebug(true);
-        temperatureChartView.setDebug(true);
         chartHelper = new WaterChartHelper();
         if (chart_water_set == null) { // retrieve the data from the db to display it in the chart
             Log.i("water/initChart", "series_data is null, calling db.setInitialWaterSet");
@@ -209,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
         double avg_pH = 0;
         double avg_orp = 0;
         double avg_turbidity = 0;
+        double avg_temperature = 0;
         int counter = 1;
         int i = 0;
 
@@ -219,8 +224,9 @@ public class MainActivity extends AppCompatActivity {
                 avg_pH = avg_pH/counter;
                 avg_orp = avg_orp/counter;
                 avg_turbidity = avg_turbidity/counter;
+                avg_temperature = avg_temperature/counter;
 
-                WaterSample chart_sample = new WaterSample(last_created_at, avg_pH, avg_orp, avg_turbidity); // a note about this, last_created_at is only important for getting the correct "dd/MM" value when creating the chart
+                WaterSample chart_sample = new WaterSample(last_created_at, avg_pH, (int) avg_orp, avg_turbidity, avg_temperature); // a note about this, last_created_at is only important for getting the correct "dd/MM" value when creating the chart
                 chart_sample.setKey(sample.key); // this line is not needed at all
                 WaterChartItem chart_item = new WaterChartItem(chart_sample, counter); // set the summarized sample and the number of samples it contained
 
@@ -236,6 +242,7 @@ public class MainActivity extends AppCompatActivity {
             avg_pH += sample.pH;
             avg_orp += sample.orp;
             avg_turbidity += sample.turbidity;
+            avg_temperature += sample.temperature;
             counter++;
             i++;
             last_date = current_date;
@@ -290,7 +297,6 @@ public class MainActivity extends AppCompatActivity {
         turbidityChartView.setChart(turbidity_chart);
     }
 
-    // temperature is still missing
     public void loadTemperatureChart() {
         APIlib.getInstance().setActiveAnyChartView(temperatureChartView);
         temperatureChartView.setProgressBar(findViewById(R.id.temperature_progress_bar));
@@ -298,11 +304,11 @@ public class MainActivity extends AppCompatActivity {
         // create data from main water_set
         List<DataEntry> series_data = new ArrayList<>();
         for (WaterChartItem item : chart_water_set) {
-            series_data.add(new ValueDataEntry(item.sample.getStrDate("dd/MM"), item.sample.pH));
+            series_data.add(new ValueDataEntry(item.sample.getStrDate("dd/MM"), item.sample.temperature));
         }
 
         // create chart
-        Cartesian temperature_chart = chartHelper.createChart("Temperature Levels", "Temperature", "C", "#cc4d29", series_data);
+        Cartesian temperature_chart = chartHelper.createChart("Temperature Levels", "Temperature", "°C", "#cc4d29", series_data);
         temperatureChartView.setChart(temperature_chart);
     }
 
@@ -345,6 +351,7 @@ public class MainActivity extends AppCompatActivity {
         outState.putString("pH", pH);
         outState.putString("orp", orp);
         outState.putString("turbidity", turbidity);
+        outState.putString("temperature", temperature);
         outState.putParcelableArrayList("chart_water_set", chart_water_set);
     }
 }

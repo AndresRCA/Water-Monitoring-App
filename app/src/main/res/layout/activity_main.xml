@@ -46,14 +46,12 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:drawableStart="@drawable/orp"
-                android:gravity="center_vertical"
                 android:text="@string/orp_text" />
 
             <TextView
                 android:id="@+id/orp"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical" />
+                android:layout_height="match_parent" />
 
         </LinearLayout>
 
@@ -67,15 +65,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:gravity="center_vertical"
                 android:text="@string/turbidity_text"
                 android:drawableStart="@drawable/turbidity"/>
 
             <TextView
                 android:id="@+id/turbidity"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical" />
+                android:layout_height="match_parent" />
         </LinearLayout>
 
         <LinearLayout
@@ -89,14 +85,12 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:drawableStart="@drawable/temperature"
-                android:gravity="center_vertical"
                 android:text="@string/temperature_text" />
 
             <TextView
                 android:id="@+id/temperature"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical" />
+                android:layout_height="match_parent" />
         </LinearLayout>
     </LinearLayout>
 
