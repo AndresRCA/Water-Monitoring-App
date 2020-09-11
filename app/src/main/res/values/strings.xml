@@ -12,6 +12,9 @@
     <string name="error_invalid_password">This password is invalid</string>
     <string name="error_field_required">This field is required</string>
 
+    <!-- Navigation -->
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
     <!-- MainActivity -->
     <string name="main_activity">Water Monitoring</string>
     <string name="ph_text">pH level:\u0020</string>

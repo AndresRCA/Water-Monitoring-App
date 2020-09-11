@@ -26,14 +26,13 @@ public class MQTTHelper {
 		this.client_id = client_id;
 		topic = "water/" + client_id;
         mqttAndroidClient = new MqttAndroidClient(context, server_uri, client_id);
-        connect();
     }
 
     public void setCallback(MqttCallbackExtended callback) {
         mqttAndroidClient.setCallback(callback);
     }
 
-    private void connect() {
+    public void connect() {
         MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
         mqttConnectOptions.setAutomaticReconnect(true);
         mqttConnectOptions.setCleanSession(false);
