@@ -1,5 +1,6 @@
 package com.example.watermonitoring;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -137,7 +138,7 @@ public class HomeFragment extends Fragment {
             username = sharedPreferences.getString("username", null);
         }
 
-        initMqtt(); // start connection and receive data
+        initMqtt();
         initFirebase();
 
         return rootView;
@@ -149,12 +150,34 @@ public class HomeFragment extends Fragment {
         initChart();
     }
 
+    @Override
+    public void onAttach(Context context) {
+        //initMqtt(context);
+        super.onAttach(context);
+    }
+
     /**
      * create mqtt connection and set callbacks for receiving data
      */
     private void initMqtt() {
-        mqtt = new MQTTHelper(this.getContext(), username); // check if this context is right, there were some errors like this "E/ActivityThread: Activity com.example.watermonitoring.MainActivity has leaked ServiceConnection"
-        mqtt.connect(); // start the connection (add a callback for onSuccess here)
+        mqtt = new MQTTHelper(getContext(), username); // check if this context is right, there were some errors like this "E/ActivityThread: Activity com.example.watermonitoring.MainActivity has leaked ServiceConnection"
+        mqtt.connect(new MQTTHelper.MQTTCallback() {
+            @Override
+            public void onSuccess() {
+                /*mpH.setText(getString(R.string.waiting_for_data));
+                mOrp.setText(getString(R.string.waiting_for_data));
+                mTurbidity.setText(getString(R.string.waiting_for_data));
+                mTemperature.setText(getString(R.string.waiting_for_data));*/
+            }
+
+            @Override
+            public void onFailure() {
+                /*mpH.setText(getActivity().getString(R.string.failed_to_connect));
+                mOrp.setText(getActivity().getString(R.string.failed_to_connect));
+                mTurbidity.setText(getActivity().getString(R.string.failed_to_connect));
+                mTemperature.setText(getActivity().getString(R.string.failed_to_connect));*/
+            }
+        }); // start the connection (add a callback for onSuccess here)
         mqtt.setCallback(new MqttCallbackExtended() {
             @Override
             public void connectComplete(boolean reconnect, String serverURI) {

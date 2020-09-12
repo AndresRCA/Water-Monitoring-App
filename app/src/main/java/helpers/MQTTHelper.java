@@ -32,7 +32,7 @@ public class MQTTHelper {
         mqttAndroidClient.setCallback(callback);
     }
 
-    public void connect() {
+    public void connect(final MQTTCallback callback) {
         MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
         mqttConnectOptions.setAutomaticReconnect(true);
         mqttConnectOptions.setCleanSession(false);
@@ -51,11 +51,13 @@ public class MQTTHelper {
                     disconnectedBufferOptions.setDeleteOldestMessages(false);
                     mqttAndroidClient.setBufferOpts(disconnectedBufferOptions);
                     subscribeToTopic();
+                    callback.onSuccess();
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                     Log.w("water/Mqtt", "Failed to connect to: " + server_uri + exception.toString());
+                    callback.onFailure();
                 }
             });
         } catch (MqttException ex) {
@@ -81,6 +83,11 @@ public class MQTTHelper {
             System.err.println("Exception while subscribing");
             ex.printStackTrace();
         }
+    }
+
+    public interface MQTTCallback {
+        void onSuccess();
+        void onFailure();
     }
 }
 
