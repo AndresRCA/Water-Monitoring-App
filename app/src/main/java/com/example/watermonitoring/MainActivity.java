@@ -4,8 +4,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -16,9 +20,19 @@ import androidx.drawerlayout.widget.DrawerLayout;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     DrawerLayout drawer;
+    String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            username = savedInstanceState.getString("username");
+        }
+        else {
+            // get username from shared preferences
+            SharedPreferences sharedPreferences = getSharedPreferences("user_data", MODE_PRIVATE);
+            username = sharedPreferences.getString("username", null);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -39,11 +53,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             navigationView.setCheckedItem(R.id.nav_home);
         }
 
-        //navUser = findViewById(R.id.nav_username);
-        /*if(navUser == null) {
-            Log.e("onCreate", "navUser is null");
-        }*/
-        //navUser.setText(username); // set the username for the navigation menu
+        // set data in drawer (username)
+        NavigationView navView = findViewById(R.id.nav_view);
+        View hView = navView.getHeaderView(0);
+        TextView navUser = hView.findViewById(R.id.nav_username);
+        navUser.setText(username); // set the username for the navigation menu
     }
 
     @Override
@@ -69,5 +83,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    /**
+     * save values
+     */
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("username", username);
     }
 }
