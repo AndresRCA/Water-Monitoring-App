@@ -150,34 +150,28 @@ public class HomeFragment extends Fragment {
         initChart();
     }
 
-    @Override
-    public void onAttach(Context context) {
-        //initMqtt(context);
-        super.onAttach(context);
-    }
-
     /**
      * create mqtt connection and set callbacks for receiving data
      */
     private void initMqtt() {
-        mqtt = new MQTTHelper(getContext(), username); // check if this context is right, there were some errors like this "E/ActivityThread: Activity com.example.watermonitoring.MainActivity has leaked ServiceConnection"
+        mqtt = new MQTTHelper(getActivity().getApplicationContext(), username); // check if this context is right, there were some errors like this "E/ActivityThread: Activity com.example.watermonitoring.MainActivity has leaked ServiceConnection"
         mqtt.connect(new MQTTHelper.MQTTCallback() {
             @Override
             public void onSuccess() {
-                /*mpH.setText(getString(R.string.waiting_for_data));
-                mOrp.setText(getString(R.string.waiting_for_data));
-                mTurbidity.setText(getString(R.string.waiting_for_data));
-                mTemperature.setText(getString(R.string.waiting_for_data));*/
+                mpH.setText("connected! waiting for data...");
+                mOrp.setText("connected! waiting for data...");
+                mTurbidity.setText("connected! waiting for data...");
+                mTemperature.setText("connected! waiting for data...");
             }
 
             @Override
             public void onFailure() {
-                /*mpH.setText(getActivity().getString(R.string.failed_to_connect));
-                mOrp.setText(getActivity().getString(R.string.failed_to_connect));
-                mTurbidity.setText(getActivity().getString(R.string.failed_to_connect));
-                mTemperature.setText(getActivity().getString(R.string.failed_to_connect));*/
+                mpH.setText("failed to connect to server");
+                mOrp.setText("failed to connect to server");
+                mTurbidity.setText("failed to connect to server");
+                mTemperature.setText("failed to connect to server");
             }
-        }); // start the connection (add a callback for onSuccess here)
+        });
         mqtt.setCallback(new MqttCallbackExtended() {
             @Override
             public void connectComplete(boolean reconnect, String serverURI) {
