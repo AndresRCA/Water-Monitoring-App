@@ -1,6 +1,5 @@
 package com.example.watermonitoring;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -56,7 +55,7 @@ public class HomeFragment extends Fragment {
     public static final int TEMPERATURE = 4;
 
     // water quality parameters
-    TextView mpH, mOrp, mTurbidity, mTemperature;
+    TextView mpH, mOrp, mTurbidity, mTemperature, mChlorine;
     String pH, orp, turbidity, temperature;
 
     @Nullable
@@ -79,6 +78,7 @@ public class HomeFragment extends Fragment {
         mOrp = rootView.findViewById(R.id.orp);
         mTurbidity = rootView.findViewById(R.id.turbidity);
         mTemperature = rootView.findViewById(R.id.temperature);
+        mChlorine = rootView.findViewById(R.id.chlorine);
 
         // charts
         phChartView = rootView.findViewById(R.id.ph_chart_view);
@@ -118,12 +118,11 @@ public class HomeFragment extends Fragment {
         });
 
         if (pH == null || orp == null || turbidity == null || temperature == null) { // usually this data comes in a single object, so if pH is null then so is everyone else, but I evaluate the three variables for readability
-            // check the actual connection... log says "Connected to server!" but these messages are still displayed (this occurs when no data has come in yet and the connection is reset)
-            // add a callback for onSuccess in MQTTHelper so the text values are right
             mpH.setText(getString(R.string.connecting_to_server));
             mOrp.setText(getString(R.string.connecting_to_server));
             mTurbidity.setText(getString(R.string.connecting_to_server));
             mTemperature.setText(getString(R.string.connecting_to_server));
+            mChlorine.setText("pH: " + getString(R.string.connecting_to_server) + ", ORP: " + getString(R.string.connecting_to_server));
         }
         else {
             mpH.setText(pH + " pH");
@@ -162,6 +161,7 @@ public class HomeFragment extends Fragment {
                 mOrp.setText("connected! waiting for data...");
                 mTurbidity.setText("connected! waiting for data...");
                 mTemperature.setText("connected! waiting for data...");
+                mChlorine.setText("pH: connected! waiting for data..., ORP: connected! waiting for data...");
             }
 
             @Override
@@ -170,6 +170,8 @@ public class HomeFragment extends Fragment {
                 mOrp.setText("failed to connect to server");
                 mTurbidity.setText("failed to connect to server");
                 mTemperature.setText("failed to connect to server");
+                mChlorine.setText("pH: failed to connect to server, ORP: failed to connect to server");
+
             }
         });
         mqtt.setCallback(new MqttCallbackExtended() {
@@ -180,6 +182,7 @@ public class HomeFragment extends Fragment {
                 mOrp.setText(getString(R.string.waiting_for_data));
                 mTurbidity.setText(getString(R.string.waiting_for_data));
                 mTemperature.setText(getString(R.string.waiting_for_data));
+                mChlorine.setText("pH: " + getString(R.string.waiting_for_data) + ", ORP: " + getString(R.string.waiting_for_data));
             }
 
             @Override
@@ -189,6 +192,7 @@ public class HomeFragment extends Fragment {
                 mOrp.setText(getString(R.string.connection_lost));
                 mTurbidity.setText(getString(R.string.connection_lost));
                 mTemperature.setText(getString(R.string.connection_lost));
+                mChlorine.setText("pH: " + getString(R.string.connection_lost) + ", ORP: " + getString(R.string.connection_lost));
             }
 
             @Override
@@ -205,6 +209,7 @@ public class HomeFragment extends Fragment {
                 mOrp.setText(orp + " mV");
                 mTurbidity.setText(turbidity + " NTU");
                 mTemperature.setText(temperature + " °C");
+                mChlorine.setText("pH: " + pH + " pH, ORP: " + orp + " mV");
             }
 
             @Override
