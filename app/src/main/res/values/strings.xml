@@ -29,6 +29,7 @@
     <string name="orp">ORP</string>
     <string name="turbidity">turbidity</string>
     <string name="temperature">temperature</string>
+    <string name="no_data">There is no data</string>
     <!-- WaterChartHelper -->
     <string name="chart_title">Water Quality Parameters</string>
     <string name="chart_y_title">Level</string>

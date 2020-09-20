@@ -56,6 +56,9 @@ public class FirebaseHelper {
                     }
                     callback.onSuccess(water_set);
                 }
+                else {
+                    callback.onFailure(); // there is no data
+                }
             }
 
             @Override

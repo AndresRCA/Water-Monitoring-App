@@ -45,6 +45,7 @@ public class HomeFragment extends Fragment {
 
     ArrayList<WaterChartItem> chart_water_set; // the water set to be processed in WaterChartHelper, distinct from water_set in FirebaseHelper (unprocessed data)
     WaterChartHelper chartHelper;
+    TextView mNoData;
     AnyChartView phChartView, orpChartView, turbidityChartView, temperatureChartView;
     ImageButton phBtn, orpBtn, turbidityBtn, temperatureBtn;
     // selected chart status
@@ -81,6 +82,7 @@ public class HomeFragment extends Fragment {
         mChlorine = rootView.findViewById(R.id.chlorine);
 
         // charts
+        mNoData = rootView.findViewById(R.id.no_data_view);
         phChartView = rootView.findViewById(R.id.ph_chart_view);
         orpChartView = rootView.findViewById(R.id.orp_chart_view);
         turbidityChartView = rootView.findViewById(R.id.turbidity_chart_view);
@@ -249,6 +251,12 @@ public class HomeFragment extends Fragment {
 
                 @Override
                 public void onFailure() {
+                    Log.i("water/initChart", "there is no data");
+                    phChartView.setVisibility(View.INVISIBLE);
+                    orpChartView.setVisibility(View.INVISIBLE);
+                    turbidityChartView.setVisibility(View.INVISIBLE);
+                    temperatureChartView.setVisibility(View.INVISIBLE);
+                    mNoData.setVisibility(View.VISIBLE);
                 }
             });
         }
@@ -396,6 +404,10 @@ public class HomeFragment extends Fragment {
     }
 
     public void showpHChart() {
+        if (mNoData.getVisibility() == View.VISIBLE) {
+            // if the no data message is display, disable the buttons
+            return;
+        }
         orpChartView.setVisibility(View.INVISIBLE);
         turbidityChartView.setVisibility(View.INVISIBLE);
         temperatureChartView.setVisibility(View.INVISIBLE);
@@ -404,6 +416,10 @@ public class HomeFragment extends Fragment {
     }
 
     public void showORPChart() {
+        if (mNoData.getVisibility() == View.VISIBLE) {
+            // if the no data message is display, disable the buttons
+            return;
+        }
         phChartView.setVisibility(View.INVISIBLE);
         turbidityChartView.setVisibility(View.INVISIBLE);
         temperatureChartView.setVisibility(View.INVISIBLE);
@@ -412,6 +428,10 @@ public class HomeFragment extends Fragment {
     }
 
     public void showTurbidityChart() {
+        if (mNoData.getVisibility() == View.VISIBLE) {
+            // if the no data message is display, disable the buttons
+            return;
+        }
         phChartView.setVisibility(View.INVISIBLE);
         orpChartView.setVisibility(View.INVISIBLE);
         temperatureChartView.setVisibility(View.INVISIBLE);
@@ -420,6 +440,10 @@ public class HomeFragment extends Fragment {
     }
 
     public void showTemperatureChart() {
+        if (mNoData.getVisibility() == View.VISIBLE) {
+            // if the no data message is display, disable the buttons
+            return;
+        }
         phChartView.setVisibility(View.INVISIBLE);
         orpChartView.setVisibility(View.INVISIBLE);
         turbidityChartView.setVisibility(View.INVISIBLE);
