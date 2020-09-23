@@ -51,7 +51,6 @@ public class FirebaseHelper {
                     Log.i("water/setInitialWaterSet", "retrieving " + dataSnapshot.getChildrenCount() + " samples");
                     for (DataSnapshot child : dataSnapshot.getChildren()) {
                         WaterSample water_sample = child.getValue(WaterSample.class);
-                        water_sample.setKey(child.getKey());
                         water_set.add(water_sample);
                     }
                     callback.onSuccess(water_set);

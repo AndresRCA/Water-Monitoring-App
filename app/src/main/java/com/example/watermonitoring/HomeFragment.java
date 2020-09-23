@@ -298,6 +298,16 @@ public class HomeFragment extends Fragment {
      */
     private ArrayList<WaterChartItem> getDailySamplesAvg(@NotNull ArrayList<WaterSample> waterSet) {
         ArrayList<WaterChartItem> chart_water_set = new ArrayList<>(); // data for the chart
+
+        // if there's only one item in the array
+        if (waterSet.size() == 1) {
+            WaterSample sample = waterSet.get(0);
+            WaterSample chart_sample = new WaterSample(sample.created_at, sample.pH, sample.orp, sample.turbidity, sample.temperature); // a note about this, last_created_at is only important for getting the correct "dd/MM" value when creating the chart
+            WaterChartItem chart_item = new WaterChartItem(chart_sample, 1);
+            chart_water_set.add(chart_item);
+            return chart_water_set;
+        }
+
         String last_date = waterSet.get(0).getStrDate("dd/MM");
         long last_created_at = waterSet.get(0).created_at;
         String current_date;
@@ -305,7 +315,7 @@ public class HomeFragment extends Fragment {
         double avg_orp = 0;
         double avg_turbidity = 0;
         double avg_temperature = 0;
-        int counter = 1;
+        int counter = 0;
         int i = 0;
 
         for (WaterSample sample : waterSet) { // get trimmed version of waterSet
@@ -318,7 +328,6 @@ public class HomeFragment extends Fragment {
                 avg_temperature = avg_temperature/counter;
 
                 WaterSample chart_sample = new WaterSample(last_created_at, avg_pH, (int) avg_orp, avg_turbidity, avg_temperature); // a note about this, last_created_at is only important for getting the correct "dd/MM" value when creating the chart
-                chart_sample.setKey(sample.key); // this line is not needed at all
                 WaterChartItem chart_item = new WaterChartItem(chart_sample, counter); // set the summarized sample and the number of samples it contained
 
                 chart_water_set.add(chart_item);

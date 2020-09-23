@@ -7,7 +7,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 public class WaterSample implements Parcelable {
-    public String key; // the key given by push() in firebase
     public long created_at;
     public double pH;
     public int orp;
@@ -27,7 +26,6 @@ public class WaterSample implements Parcelable {
     }
 
     protected WaterSample(Parcel in) {
-        key = in.readString();
         created_at = in.readLong();
         pH = in.readDouble();
         orp = in.readInt();
@@ -47,10 +45,6 @@ public class WaterSample implements Parcelable {
         }
     };
 
-    public void setKey(String key) {
-        this.key = key;
-    }
-
     public String getStrDate(String format) {
         DateFormat formatter = new SimpleDateFormat(format);
         String str_date = formatter.format(created_at);
@@ -64,7 +58,6 @@ public class WaterSample implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(key);
         dest.writeLong(created_at);
         dest.writeDouble(pH);
         dest.writeInt(orp);
