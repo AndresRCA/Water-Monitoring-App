@@ -299,57 +299,61 @@ public class HomeFragment extends Fragment {
     private ArrayList<WaterChartItem> getDailySamplesAvg(@NotNull ArrayList<WaterSample> waterSet) {
         ArrayList<WaterChartItem> chart_water_set = new ArrayList<>(); // data for the chart
 
-        // if there's only one item in the array
-        if (waterSet.size() == 1) {
-            WaterSample sample = waterSet.get(0);
-            WaterSample chart_sample = new WaterSample(sample.created_at, sample.pH, sample.orp, sample.turbidity, sample.temperature); // a note about this, last_created_at is only important for getting the correct "dd/MM" value when creating the chart
-            WaterChartItem chart_item = new WaterChartItem(chart_sample, 1);
-            chart_water_set.add(chart_item);
-            return chart_water_set;
-        }
+        Calendar calendar = Calendar.getInstance();
 
-        String last_date = waterSet.get(0).getStrDate("dd/MM");
-        long last_created_at = waterSet.get(0).created_at;
-        String current_date;
-        double avg_pH = 0;
-        double avg_orp = 0;
-        double avg_turbidity = 0;
-        double avg_temperature = 0;
-        int counter = 0;
-        int i = 0;
+        calendar.add(Calendar.DATE, 1);
+        String next_date = getStrDate(calendar.get(Calendar.DATE), calendar.get(Calendar.MONTH) + 1);
 
-        for (WaterSample sample : waterSet) { // get trimmed version of waterSet
-            current_date = sample.getStrDate("dd/MM");
-            if (!current_date.equals(last_date) || i == waterSet.size() - 1) {
-                // if the date changed or if you reached the last element, insert the average of that day to the list
+        calendar.add(Calendar.DATE, -1);
+        calendar.add(Calendar.MONTH, -1);
+        String previous_date = getStrDate(calendar.get(Calendar.DATE), calendar.get(Calendar.MONTH) + 1);
+
+        while (!next_date.equals(previous_date)) {
+            double avg_pH = 0;
+            double avg_orp = 0;
+            double avg_turbidity = 0;
+            double avg_temperature = 0;
+            int counter = 0;
+            
+            for (WaterSample sample : waterSet) {
+                if (previous_date.equals(sample.getStrDate("dd/MM"))) {
+                    avg_pH += sample.pH;
+                    avg_orp += sample.orp;
+                    avg_turbidity += sample.turbidity;
+                    avg_temperature += sample.temperature;
+                    counter++;
+                }
+            }
+
+            if (counter != 0) {
                 avg_pH = avg_pH/counter;
                 avg_orp = avg_orp/counter;
                 avg_turbidity = avg_turbidity/counter;
                 avg_temperature = avg_temperature/counter;
-
-                WaterSample chart_sample = new WaterSample(last_created_at, avg_pH, (int) avg_orp, avg_turbidity, avg_temperature); // a note about this, last_created_at is only important for getting the correct "dd/MM" value when creating the chart
-                WaterChartItem chart_item = new WaterChartItem(chart_sample, counter); // set the summarized sample and the number of samples it contained
-
-                chart_water_set.add(chart_item);
-
-                // reset variables for next item in the chart (chart_water_set)
-                avg_pH = 0;
-                avg_orp = 0;
-                avg_turbidity = 0;
-                counter = 0;
             }
-            // keep summing the averages
-            avg_pH += sample.pH;
-            avg_orp += sample.orp;
-            avg_turbidity += sample.turbidity;
-            avg_temperature += sample.temperature;
-            counter++;
-            i++;
-            last_date = current_date;
-            last_created_at = sample.created_at;
+            WaterSample chart_sample = new WaterSample(calendar.getTimeInMillis(), avg_pH, (int) avg_orp, avg_turbidity, avg_temperature);
+            WaterChartItem chart_item = new WaterChartItem(chart_sample, counter);
+            chart_water_set.add(chart_item);
+
+            calendar.add(Calendar.DATE, 1);
+            previous_date = getStrDate(calendar.get(Calendar.DATE), calendar.get(Calendar.MONTH) + 1);
         }
 
         return chart_water_set;
+    }
+
+    private String getStrDate(int day, int month) {
+        String next_day = String.valueOf(day);
+        if (day < 10) {
+            next_day = "0" + next_day;
+        }
+        String next_month = String.valueOf(month);
+        if (month < 10) {
+            next_month = "0" + next_month;
+        }
+
+        String next_date = next_day + "/" + next_month;
+        return next_date;
     }
 
     public void loadpHChart() {
