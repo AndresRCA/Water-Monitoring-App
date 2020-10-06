@@ -1,7 +1,12 @@
 package com.example.watermonitoring;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,12 +38,122 @@ import helpers.MQTTHelper;
 import helpers.WaterChartHelper;
 import models.WaterChartItem;
 import models.WaterSample;
+import services.MQTTService;
 
 import static android.content.Context.MODE_PRIVATE;
 
 public class HomeFragment extends Fragment {
 
-    MQTTHelper mqtt;
+    IBinder serviceBinder;
+    MQTTService mqttService;
+    // callback used when receiving messages from mqtt server
+    MqttCallbackExtended mqttCallback = new MqttCallbackExtended() {
+        @Override
+        public void connectComplete(boolean reconnect, String serverURI) {
+            Log.i("water/connection", "connection complete!");
+            mpH.setText(getString(R.string.waiting_for_data));
+            mOrp.setText(getString(R.string.waiting_for_data));
+            mTurbidity.setText(getString(R.string.waiting_for_data));
+            mTemperature.setText(getString(R.string.waiting_for_data));
+            mChlorine.setText("pH: " + getString(R.string.waiting_for_data) + ", ORP: " + getString(R.string.waiting_for_data));
+        }
+
+        @Override
+        public void connectionLost(Throwable throwable) {
+            Log.i("water/connection", "connection lost");
+            mpH.setText(getString(R.string.connection_lost));
+            mOrp.setText(getString(R.string.connection_lost));
+            mTurbidity.setText(getString(R.string.connection_lost));
+            mTemperature.setText(getString(R.string.connection_lost));
+            mChlorine.setText("pH: " + getString(R.string.connection_lost) + ", ORP: " + getString(R.string.connection_lost));
+        }
+
+        @Override
+        public void messageArrived(String topic, MqttMessage message) throws Exception {
+            // get json object
+            JSONObject jsonmsg = new JSONObject(new String(message.getPayload()));
+            Log.i("water/mqtt", "message arrived" + new String(message.getPayload()));
+            if(mqttService.sample == null) {
+                mqttService.sample = new WaterSample();
+            }
+
+            mqttService.sample.pH = jsonmsg.getDouble("pH");
+            mqttService.sample.orp = jsonmsg.getInt("orp");
+            mqttService.sample.turbidity = jsonmsg.getDouble("turbidity");
+            mqttService.sample.temperature = jsonmsg.getDouble("temperature");
+
+            // get String values for the TextViews
+            pH = String.valueOf(mqttService.sample.pH);
+            orp = String.valueOf(mqttService.sample.orp);
+            turbidity = String.valueOf(mqttService.sample.turbidity);
+            temperature = String.valueOf(mqttService.sample.temperature);
+
+            // set the text for the TextViews
+            mpH.setText(pH + " pH");
+            mOrp.setText(orp + " mV");
+            mTurbidity.setText(turbidity + " NTU");
+            mTemperature.setText(temperature + " °C");
+            mChlorine.setText("pH: " + pH + " pH, ORP: " + orp + " mV");
+
+            // check sample parameters here for notifications
+            // ...
+        }
+
+        @Override
+        public void deliveryComplete(IMqttDeliveryToken token) {}
+    };
+    // callbacks for the service connection on bind
+    ServiceConnection mServiceConn = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.i("water/mServerconn", "connected to service");
+            isServiceBound = true;
+            serviceBinder = service;
+            MQTTService.MyBinder binder = (MQTTService.MyBinder) service;
+            mqttService = binder.getService();
+
+            // when binding, connect to mqtt server if the service wasn't started beforehand
+            if (!mqttService.isServiceStarted) {
+                mqttService.connectToMqttServer(new MQTTHelper.MQTTCallback() {
+                    @Override
+                    public void onSuccess() {
+                        if (pH == null || orp == null || turbidity == null || temperature == null) { // meaning if there hasn't been any data before this reconnection (in the case it's not the first time a connection has been established)
+                            mpH.setText("connected! waiting for data...");
+                            mOrp.setText("connected! waiting for data...");
+                            mTurbidity.setText("connected! waiting for data...");
+                            mTemperature.setText("connected! waiting for data...");
+                            mChlorine.setText("pH: connected! waiting for data..., ORP: connected! waiting for data...");
+                        }
+                        else {
+                            mpH.setText(pH + " pH");
+                            mOrp.setText(orp + " mV");
+                            mTurbidity.setText(turbidity + " NTU");
+                            mTemperature.setText(temperature + " °C");
+                            mChlorine.setText("pH: " + pH + " pH, ORP: " + orp + " mV");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure() {
+                        mpH.setText("failed to connect to server"); // or should I say connection lost? i just subtituted the onFailure from the mqtt callback to here
+                        mOrp.setText("failed to connect to server");
+                        mTurbidity.setText("failed to connect to server");
+                        mTemperature.setText("failed to connect to server");
+                        mChlorine.setText("pH: failed to connect to server, ORP: failed to connect to server");
+                    }
+                }, username);
+            }
+
+            // when binding, set callbacks for mqtt server incoming data
+            mqttService.setMqttCallback(mqttCallback);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            isServiceBound = false;
+        }
+    };
+    boolean isServiceBound; // watch out for this, might need to declare it or save it
 
     FirebaseHelper db; // db contains data such as the water samples collected by the user
     String username;
@@ -62,16 +177,6 @@ public class HomeFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            username = savedInstanceState.getString("username");
-            pH = savedInstanceState.getString("pH");
-            orp = savedInstanceState.getString("orp");
-            turbidity = savedInstanceState.getString("pH");
-            temperature = savedInstanceState.getString("temperature");
-            chart_water_set = savedInstanceState.getParcelableArrayList("chart_water_set");
-            selected_chart = savedInstanceState.getInt("selected_chart");
-        }
-
         View rootView = inflater.inflate(R.layout.fragment_home, container, false);
 
         // mqtt values TextView
@@ -119,27 +224,34 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        if (pH == null || orp == null || turbidity == null || temperature == null) { // usually this data comes in a single object, so if pH is null then so is everyone else, but I evaluate the three variables for readability
+        if (savedInstanceState != null) {
+            username = savedInstanceState.getString("username");
+
+            serviceBinder = savedInstanceState.getBinder("serviceBinder");
+            MQTTService.MyBinder binder = (MQTTService.MyBinder) serviceBinder;
+            mqttService = binder.getService(); // get service from binder
+
+            pH = savedInstanceState.getString("pH");
+            orp = savedInstanceState.getString("orp");
+            turbidity = savedInstanceState.getString("pH");
+            temperature = savedInstanceState.getString("temperature");
+            chart_water_set = savedInstanceState.getParcelableArrayList("chart_water_set");
+            selected_chart = savedInstanceState.getInt("selected_chart");
+        }
+        else {
+            // essentially initialize everything the first time the activity starts (since there is an onSaveInstanceState method declared)
+            // pH, orp, turbidity, and temperature should be null as well, and that means that the service is not bound or data has not been received yet (since the connection hasn't been established yet)
             mpH.setText(getString(R.string.connecting_to_server));
             mOrp.setText(getString(R.string.connecting_to_server));
             mTurbidity.setText(getString(R.string.connecting_to_server));
             mTemperature.setText(getString(R.string.connecting_to_server));
             mChlorine.setText("pH: " + getString(R.string.connecting_to_server) + ", ORP: " + getString(R.string.connecting_to_server));
-        }
-        else {
-            mpH.setText(pH + " pH");
-            mOrp.setText(orp + " mV");
-            mTurbidity.setText(turbidity + " NTU");
-            mTemperature.setText(temperature + " °C");
-        }
-
-        // get username from shared preferences
-        if (username == null) {
+            // get username from shared preferences
             SharedPreferences sharedPreferences = this.getActivity().getSharedPreferences("user_data", MODE_PRIVATE);
             username = sharedPreferences.getString("username", null);
         }
 
-        initMqtt();
+        initMqttService();
         initFirebase();
 
         return rootView;
@@ -151,74 +263,31 @@ public class HomeFragment extends Fragment {
         initChart();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (isServiceBound) {
+            getActivity().unbindService(mServiceConn);
+        }
+    }
+
     /**
      * create mqtt connection and set callbacks for receiving data
      */
-    private void initMqtt() {
-        mqtt = new MQTTHelper(getActivity().getApplicationContext(), username); // check if this context is right, there were some errors like this "E/ActivityThread: Activity com.example.watermonitoring.MainActivity has leaked ServiceConnection"
-        mqtt.connect(new MQTTHelper.MQTTCallback() {
-            @Override
-            public void onSuccess() {
-                mpH.setText("connected! waiting for data...");
-                mOrp.setText("connected! waiting for data...");
-                mTurbidity.setText("connected! waiting for data...");
-                mTemperature.setText("connected! waiting for data...");
-                mChlorine.setText("pH: connected! waiting for data..., ORP: connected! waiting for data...");
-            }
+    private void initMqttService() {
+        /* should maybe check if serviceBinder is null? I mean, if I save the binder that means the service is still bound right? */
+        if (isServiceBound) {
+            return; // service is already bound and working its magic (I think? I mean, is the mServerConn callback still working when I'm using fragment properties inside? don't the references get destroyed or something?)
 
-            @Override
-            public void onFailure() {
-                mpH.setText("failed to connect to server");
-                mOrp.setText("failed to connect to server");
-                mTurbidity.setText("failed to connect to server");
-                mTemperature.setText("failed to connect to server");
-                mChlorine.setText("pH: failed to connect to server, ORP: failed to connect to server");
+            // although... maybe the way to implement this is doing this:
+            /*if (mqttService != null) {
+                mqttService.setMqttCallback(mqttCallback);
+            }*/
+        }
 
-            }
-        });
-        mqtt.setCallback(new MqttCallbackExtended() {
-            @Override
-            public void connectComplete(boolean reconnect, String serverURI) {
-                Log.i("connection", "connection complete!");
-                mpH.setText(getString(R.string.waiting_for_data));
-                mOrp.setText(getString(R.string.waiting_for_data));
-                mTurbidity.setText(getString(R.string.waiting_for_data));
-                mTemperature.setText(getString(R.string.waiting_for_data));
-                mChlorine.setText("pH: " + getString(R.string.waiting_for_data) + ", ORP: " + getString(R.string.waiting_for_data));
-            }
-
-            @Override
-            public void connectionLost(Throwable throwable) {
-                Log.i("connection", "connection lost");
-                mpH.setText(getString(R.string.connection_lost));
-                mOrp.setText(getString(R.string.connection_lost));
-                mTurbidity.setText(getString(R.string.connection_lost));
-                mTemperature.setText(getString(R.string.connection_lost));
-                mChlorine.setText("pH: " + getString(R.string.connection_lost) + ", ORP: " + getString(R.string.connection_lost));
-            }
-
-            @Override
-            public void messageArrived(String topic, MqttMessage message) throws Exception {
-                // get json object
-                JSONObject jsonmsg = new JSONObject(new String(message.getPayload()));
-                Log.i("mqtt", "message arrived" + new String(message.getPayload()));
-                pH = jsonmsg.getString("pH");
-                orp = jsonmsg.getString("orp");
-                turbidity = jsonmsg.getString("turbidity");
-                temperature = jsonmsg.getString("temperature");
-
-                mpH.setText(pH + " pH");
-                mOrp.setText(orp + " mV");
-                mTurbidity.setText(turbidity + " NTU");
-                mTemperature.setText(temperature + " °C");
-                mChlorine.setText("pH: " + pH + " pH, ORP: " + orp + " mV");
-            }
-
-            @Override
-            public void deliveryComplete(IMqttDeliveryToken token) {
-
-            }
-        });
+        // prepare service intent
+        Intent service_intent = new Intent(getActivity(), MQTTService.class);
+        getActivity().bindService(service_intent, mServiceConn, Context.BIND_AUTO_CREATE); // Context.BIND_AUTO_CREATE: automatically create the service as long as the binding exists, does not call onStartCommand()
     }
 
     private void initFirebase() {
@@ -314,7 +383,7 @@ public class HomeFragment extends Fragment {
             double avg_turbidity = 0;
             double avg_temperature = 0;
             int counter = 0;
-            
+
             for (WaterSample sample : waterSet) {
                 if (previous_date.equals(sample.getStrDate("dd/MM"))) {
                     avg_pH += sample.pH;
@@ -472,6 +541,7 @@ public class HomeFragment extends Fragment {
         Log.i("water/onSaveInstanceState", "saving state...");
         super.onSaveInstanceState(outState);
         outState.putString("username", username);
+        outState.putBinder("serviceBinder", serviceBinder);
         outState.putString("pH", pH);
         outState.putString("orp", orp);
         outState.putString("turbidity", turbidity);
