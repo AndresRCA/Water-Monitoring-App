@@ -27,8 +27,10 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.FirebaseError;
 import com.google.firebase.database.DatabaseError;
@@ -52,19 +54,28 @@ public class LoginActivity extends AppCompatActivity {
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private CheckBox mStayLoggedIn;
+
+    // login info
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-		
+        sharedPreferences = getSharedPreferences("user_data", MODE_PRIVATE);
+        //check if user is already logged in
+        boolean isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
+        if (isLoggedIn) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
+
 		// get db
 		db = FirebaseDatabase.getInstance();
 		
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mUsernameView = (AutoCompleteTextView) findViewById(R.id.username);
-
-
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -87,6 +98,8 @@ public class LoginActivity extends AppCompatActivity {
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+        mStayLoggedIn = findViewById(R.id.stay_logged_in);
+        mStayLoggedIn.setChecked(false);
     }
 
     /**
@@ -105,13 +118,6 @@ public class LoginActivity extends AppCompatActivity {
 
         final boolean[] cancel = {false};
         final View[] focusView = {null};
-
-        /*------- IMPORTANT: THESE LINES SHOULD BE DELETED IN PRODUCTION -------*/
-        // for now let's bypass validation for development purposes
-        /*Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        intent.putExtra("username", "andres");
-        startActivity(intent);*/
-        /*----------------------------------------------------------------------*/
 
 		// Check if username is empty
         if (TextUtils.isEmpty(username)) {
@@ -162,9 +168,9 @@ public class LoginActivity extends AppCompatActivity {
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         intent.putExtra("username", username);
 
-                        SharedPreferences sharedPreferences = getSharedPreferences("user_data", MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putString("username", username);
+                        editor.putBoolean("isLoggedIn", mStayLoggedIn.isChecked());
                         editor.apply();
 
                         startActivity(intent);
