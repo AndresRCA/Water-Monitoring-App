@@ -80,13 +80,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_water_info:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new InfoFragment()).commit();
                 break;
+            case R.id.settings:
+                Intent settingsIntent = new Intent(this, Settings.class);
+                startActivityForResult(settingsIntent, 0);
+                break;
             case R.id.sign_out:
                 SharedPreferences sharedPreferences = getSharedPreferences("user_data", MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.clear(); // clear all user data
                 editor.apply();
-                Intent intent = new Intent(this, LoginActivity.class);
-                startActivity(intent);
+                Intent signOutIntent = new Intent(this, LoginActivity.class);
+                startActivity(signOutIntent);
+                break;
         }
 
         drawer.closeDrawer(GravityCompat.START);
