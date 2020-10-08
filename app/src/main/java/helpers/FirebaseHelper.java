@@ -88,6 +88,10 @@ public class FirebaseHelper {
         userRef.child("alarmParameters").child(pref).setValue(value, listener);
     }
 
+    public void setRegistrationToken(String token) {
+        userRef.child("registrationToken").setValue(token);
+    }
+
     /**
      * interface for callbacks in setInitialWaterSet()
      */

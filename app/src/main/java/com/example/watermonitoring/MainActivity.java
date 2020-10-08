@@ -21,6 +21,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     DrawerLayout drawer;
+    private SharedPreferences userPrefs;
     String username;
 
     @Override
@@ -30,8 +31,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else {
             // get username from shared preferences
-            SharedPreferences sharedPreferences = getSharedPreferences("user_data", MODE_PRIVATE);
-            username = sharedPreferences.getString("username", null);
+            userPrefs = getSharedPreferences("user_data", MODE_PRIVATE);
+            username = userPrefs.getString("username", null);
         }
 
         super.onCreate(savedInstanceState);
@@ -86,8 +87,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(settingsIntent); // what should I do? I'll never return true and maybe that's what's making the Settings item highlighted when i press the back button but not the back arrow?
                 break;
             case R.id.sign_out:
-                SharedPreferences sharedPreferences = getSharedPreferences("user_data", MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
+                SharedPreferences.Editor editor = userPrefs.edit();
                 editor.clear(); // clear all user data
                 editor.apply();
                 Intent signOutIntent = new Intent(this, LoginActivity.class);

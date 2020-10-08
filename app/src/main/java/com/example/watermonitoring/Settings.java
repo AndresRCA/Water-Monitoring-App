@@ -151,7 +151,7 @@ public class Settings extends AppCompatActivity {
             temperature_max = Float.parseFloat(temperature_max_text);
             db.setPrefs("temperature_max", temperature_max, getCompletionListener("temperature_max", temperature_max));
         }
-        //finish();
+        finish();
     }
 
     private DatabaseReference.CompletionListener getCompletionListener(final String key, final Number value) {
@@ -170,7 +170,7 @@ public class Settings extends AppCompatActivity {
                 }
                 else {
                     Toast.makeText(getApplicationContext(), key + " value could not be set, there was an error in the database", Toast.LENGTH_SHORT).show();
-                    //finish();
+                    finish();
                 }
             }
         };

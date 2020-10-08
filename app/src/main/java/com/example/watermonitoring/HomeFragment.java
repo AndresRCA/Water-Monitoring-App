@@ -19,6 +19,9 @@ import com.anychart.AnyChartView;
 import com.anychart.chart.common.dataentry.DataEntry;
 import com.anychart.chart.common.dataentry.ValueDataEntry;
 import com.anychart.charts.Cartesian;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
@@ -224,9 +227,11 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        if (savedInstanceState != null) {
-            username = savedInstanceState.getString("username");
+        SharedPreferences sharedPreferences = this.getActivity().getSharedPreferences("user_data", MODE_PRIVATE);
+        username = sharedPreferences.getString("username", null); // get username from shared preferences
+        initFirebase();
 
+        if (savedInstanceState != null) {
             serviceBinder = savedInstanceState.getBinder("serviceBinder");
             MQTTService.MyBinder binder = (MQTTService.MyBinder) serviceBinder;
             mqttService = binder.getService(); // get service from binder
@@ -246,13 +251,26 @@ public class HomeFragment extends Fragment {
             mTurbidity.setText(getString(R.string.connecting_to_server));
             mTemperature.setText(getString(R.string.connecting_to_server));
             mChlorine.setText("pH: " + getString(R.string.connecting_to_server) + ", ORP: " + getString(R.string.connecting_to_server));
-            // get username from shared preferences
-            SharedPreferences sharedPreferences = this.getActivity().getSharedPreferences("user_data", MODE_PRIVATE);
-            username = sharedPreferences.getString("username", null);
+
+            // set token when user logs in
+            FirebaseMessaging.getInstance().getToken()
+            .addOnCompleteListener(new OnCompleteListener<String>() {
+                @Override
+                public void onComplete(@NonNull Task<String> task) {
+                    if (!task.isSuccessful()) {
+                        Log.w("water/initFirebase", "Fetching FCM registration token failed", task.getException());
+                        return;
+                    }
+
+                    // Get new FCM registration token
+                    String token = task.getResult();
+                    Log.i("water/initFirebase", "registration token: " + token);
+                    db.setRegistrationToken(token);
+                }
+            });
         }
 
         initMqttService();
-        initFirebase();
 
         return rootView;
     }
@@ -278,11 +296,6 @@ public class HomeFragment extends Fragment {
         /* should maybe check if serviceBinder is null? I mean, if I save the binder that means the service is still bound right? */
         if (isServiceBound) {
             return; // service is already bound and working its magic (I think? I mean, is the mServerConn callback still working when I'm using fragment properties inside? don't the references get destroyed or something?)
-
-            // although... maybe the way to implement this is doing this:
-            /*if (mqttService != null) {
-                mqttService.setMqttCallback(mqttCallback);
-            }*/
         }
 
         // prepare service intent
@@ -540,7 +553,6 @@ public class HomeFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         Log.i("water/onSaveInstanceState", "saving state...");
         super.onSaveInstanceState(outState);
-        outState.putString("username", username);
         outState.putBinder("serviceBinder", serviceBinder);
         outState.putString("pH", pH);
         outState.putString("orp", orp);

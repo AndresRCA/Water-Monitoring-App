@@ -166,7 +166,6 @@ public class LoginActivity extends AppCompatActivity {
                     if(!cancel[0]) {
                         // login is successful, go to main activity
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                        intent.putExtra("username", username);
 
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putString("username", username);
