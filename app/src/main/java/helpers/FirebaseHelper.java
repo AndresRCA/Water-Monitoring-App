@@ -11,10 +11,13 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import models.WaterSample;
 
 public class FirebaseHelper {
     private FirebaseDatabase db;
+    private DatabaseReference userRef;
     private DatabaseReference waterSamples;
     private Query waterSamplesToWatch;
     public ArrayList<WaterSample> water_set; // array that is displayed on the activity in a graph
@@ -22,8 +25,8 @@ public class FirebaseHelper {
 
     public FirebaseHelper(String username) {
         db = FirebaseDatabase.getInstance();
-        DatabaseReference user = db.getReference("/users/" + username);
-        waterSamples = user.child("waterSamples"); // get the waterSamples reference for this user, this property is used for monthlyWaterSamples, and is not really used directly
+        userRef = db.getReference("/users/" + username);
+        waterSamples = userRef.child("waterSamples"); // get the waterSamples reference for this user, this property is used for monthlyWaterSamples, and is not really used directly
         start_date = 0; // initial start_date for querying
     }
 
@@ -67,6 +70,22 @@ public class FirebaseHelper {
                 callback.onFailure();
             }
         });
+    }
+
+    /**
+     * Saves the settingPreferences values to firebase using the same key
+     * @param pref
+     * @param value
+     * @param listener
+     */
+    public void setPrefs(String pref, Number value, DatabaseReference.CompletionListener listener) {
+        if(value.getClass() == Float.class) {
+            value = value.floatValue();
+        }
+        if(value.getClass() == Integer.class) {
+            value = value.intValue();
+        }
+        userRef.child("alarmParameters").child(pref).setValue(value, listener);
     }
 
     /**

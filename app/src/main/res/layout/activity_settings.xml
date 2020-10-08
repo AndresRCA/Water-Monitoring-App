@@ -70,6 +70,7 @@
                 android:inputType="numberDecimal"
                 app:layout_constraintBaseline_toBaselineOf="@+id/textView8"
                 app:layout_constraintStart_toEndOf="@+id/textView8" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -118,6 +119,7 @@
                 android:inputType="numberDecimal"
                 app:layout_constraintBaseline_toBaselineOf="@+id/textView9"
                 app:layout_constraintStart_toEndOf="@+id/textView9" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -166,6 +168,7 @@
                 android:inputType="numberDecimal"
                 app:layout_constraintBaseline_toBaselineOf="@+id/textView10"
                 app:layout_constraintStart_toEndOf="@+id/textView10" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -219,17 +222,18 @@
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <TextView
-        android:id="@+id/textView12"
+    <Button
+        android:id="@+id/apply_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:textSize="20dp"
+        android:background="@android:color/transparent"
         android:textColor="#47bae8"
         android:text="Apply"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
+        app:layout_constraintEnd_toEndOf="parent"
+        android:onClick="applySettings" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -82,7 +82,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.settings:
                 Intent settingsIntent = new Intent(this, Settings.class);
-                startActivityForResult(settingsIntent, 0);
+                drawer.closeDrawer(GravityCompat.START);
+                startActivity(settingsIntent); // what should I do? I'll never return true and maybe that's what's making the Settings item highlighted when i press the back button but not the back arrow?
                 break;
             case R.id.sign_out:
                 SharedPreferences sharedPreferences = getSharedPreferences("user_data", MODE_PRIVATE);
@@ -90,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 editor.clear(); // clear all user data
                 editor.apply();
                 Intent signOutIntent = new Intent(this, LoginActivity.class);
+                drawer.closeDrawer(GravityCompat.START);
                 startActivity(signOutIntent);
                 break;
         }
