@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -82,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new InfoFragment()).commit();
                 break;
             case R.id.settings:
-                Intent settingsIntent = new Intent(this, Settings.class);
+                Intent settingsIntent = new Intent(this, SettingsActivity.class);
                 drawer.closeDrawer(GravityCompat.START);
                 startActivity(settingsIntent); // what should I do? I'll never return true and maybe that's what's making the Settings item highlighted when i press the back button but not the back arrow?
                 break;
