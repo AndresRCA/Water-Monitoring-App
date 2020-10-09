@@ -12,6 +12,9 @@ import com.example.watermonitoring.R;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import helpers.FirebaseHelper;
@@ -40,7 +43,31 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (username != null) {
             // if user is logged in essentially (remember that when user logs out, userPrefs is cleared)
             if (remoteMessage.getData().size() > 0) {
-                Log.i("water/onMessageReceived", "remoteMessage with title " + remoteMessage.getData().get("title"));
+                String parameter = remoteMessage.getData().get("parameter");
+                String value = remoteMessage.getData().get("value");
+                long time = Long.parseLong(remoteMessage.getData().get("time"));
+                DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
+                String str_date = formatter.format(time);
+                String unit = "";
+                switch (parameter) {
+                    case "pH":
+                        unit = "pH";
+                        break;
+                    case "orp":
+                        unit = "mV";
+                        break;
+                    case "turbidity":
+                        unit = "NTU";
+                        break;
+                    case "temperature":
+                        unit = "°C";
+                        break;
+                }
+                if (unit.isEmpty()) {
+                    return; // there had to have been an error from the server sending the notification
+                }
+
+                Log.i("water/onMessageReceived", "remoteMessage with parameter " + parameter);
 
                 // set up intent for notification
                 Intent intent = new Intent(this, LoginActivity.class); // LoginActivity checks whether user is logged in (isLoggedIn in shared prefs)
@@ -49,9 +76,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                 // build notification
                 NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                        .setContentTitle("Water parameter alarm")
                         .setSmallIcon(R.drawable.water_drop)
-                        .setContentText(remoteMessage.getData().get("body"))
+                        .setContentTitle(parameter + " alert")
+                        .setContentText(parameter + " has reached " + value + " " + unit + " at " + str_date)
                         .setAutoCancel(true)
                         .setContentIntent(pendingIntent);
 
