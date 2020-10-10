@@ -80,7 +80,7 @@ public class FirebaseHelper {
      * @param value
      * @param listener
      */
-    public void setPrefs(String pref, Number value, DatabaseReference.CompletionListener listener) {
+    public void setPref(String pref, Number value, DatabaseReference.CompletionListener listener) {
         if(value.getClass() == Float.class) {
             value = value.floatValue();
         }
@@ -88,6 +88,10 @@ public class FirebaseHelper {
             value = value.intValue();
         }
         db.getReference("/alarmParameters/" + user).child(pref).setValue(value, listener);
+    }
+
+    public void removePref(String pref) {
+        db.getReference("/alarmParameters/" + user).child(pref).removeValue();
     }
 
     public void setRegistrationToken(String token) {

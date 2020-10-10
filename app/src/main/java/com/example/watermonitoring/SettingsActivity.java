@@ -104,52 +104,92 @@ public class SettingsActivity extends AppCompatActivity {
         float pH_min;
         if (!pH_min_text.isEmpty()) {
             pH_min = Float.parseFloat(pH_min_text);
-            db.setPrefs("pH_min", pH_min, getCompletionListener("pH_min", pH_min));
+            db.setPref("pH_min", pH_min, getCompletionListener("pH_min", pH_min));
+        }
+        else {
+            db.removePref("pH_min");
+            settingsEditor.remove("pH_min");
+            settingsEditor.apply();
         }
         String pH_max_text = pHMax.getText().toString();
         float pH_max;
         if (!pH_max_text.isEmpty()) {
             pH_max = Float.parseFloat(pH_max_text);
-            db.setPrefs("pH_max", pH_max, getCompletionListener("pH_max", pH_max));
+            db.setPref("pH_max", pH_max, getCompletionListener("pH_max", pH_max));
+        }
+        else {
+            db.removePref("pH_max");
+            settingsEditor.remove("pH_max");
+            settingsEditor.apply();
         }
 
         String orp_min_text = orpMin.getText().toString();
         int orp_min;
         if (!orp_min_text.isEmpty()) {
             orp_min = Integer.parseInt(orp_min_text);
-            db.setPrefs("orp_min", orp_min, getCompletionListener("orp_min", orp_min));
+            db.setPref("orp_min", orp_min, getCompletionListener("orp_min", orp_min));
+        }
+        else {
+            db.removePref("orp_min");
+            settingsEditor.remove("orp_min");
+            settingsEditor.apply();
         }
         String orp_max_text = orpMax.getText().toString();
         int orp_max;
         if (!orp_max_text.isEmpty()) {
             orp_max = Integer.parseInt(orp_max_text);
-            db.setPrefs("orp_max", orp_max, getCompletionListener("orp_max", orp_max));
+            db.setPref("orp_max", orp_max, getCompletionListener("orp_max", orp_max));
+        }
+        else {
+            db.removePref("orp_max");
+            settingsEditor.remove("orp_max");
+            settingsEditor.apply();
         }
 
         String turbidity_min_text = turbidityMin.getText().toString();
         float turbidity_min;
         if (!turbidity_min_text.isEmpty()) {
             turbidity_min = Float.parseFloat(turbidity_min_text);
-            db.setPrefs("turbidity_min", turbidity_min, getCompletionListener("turbidity_min", turbidity_min));
+            db.setPref("turbidity_min", turbidity_min, getCompletionListener("turbidity_min", turbidity_min));
+        }
+        else {
+            db.removePref("turbidity_min");
+            settingsEditor.remove("turbidity_min");
+            settingsEditor.apply();
         }
         String turbidity_max_text = turbidityMax.getText().toString();
         float turbidity_max;
         if (!turbidity_max_text.isEmpty()) {
             turbidity_max = Float.parseFloat(turbidity_max_text);
-            db.setPrefs("turbidity_max", turbidity_max, getCompletionListener("turbidity_max", turbidity_max));
+            db.setPref("turbidity_max", turbidity_max, getCompletionListener("turbidity_max", turbidity_max));
+        }
+        else {
+            db.removePref("turbidity_max");
+            settingsEditor.remove("turbidity_max");
+            settingsEditor.apply();
         }
 
         String temperature_min_text = temperatureMin.getText().toString();
         float temperature_min;
         if (!temperature_min_text.isEmpty()) {
             temperature_min = Float.parseFloat(temperature_min_text);
-            db.setPrefs("temperature_min", temperature_min, getCompletionListener("temperature_min", temperature_min));
+            db.setPref("temperature_min", temperature_min, getCompletionListener("temperature_min", temperature_min));
+        }
+        else {
+            db.removePref("temperature_min");
+            settingsEditor.remove("temperature_min");
+            settingsEditor.apply();
         }
         String temperature_max_text = temperatureMax.getText().toString();
         float temperature_max;
         if (!temperature_max_text.isEmpty()) {
             temperature_max = Float.parseFloat(temperature_max_text);
-            db.setPrefs("temperature_max", temperature_max, getCompletionListener("temperature_max", temperature_max));
+            db.setPref("temperature_max", temperature_max, getCompletionListener("temperature_max", temperature_max));
+        }
+        else {
+            db.removePref("temperature_max");
+            settingsEditor.remove("temperature_max");
+            settingsEditor.apply();
         }
         finish();
     }
