@@ -17,6 +17,7 @@ import models.WaterSample;
 
 public class FirebaseHelper {
     private FirebaseDatabase db;
+    private String user;
     private DatabaseReference userRef;
     private DatabaseReference waterSamples;
     private Query waterSamplesToWatch;
@@ -24,9 +25,10 @@ public class FirebaseHelper {
     private long start_date;
 
     public FirebaseHelper(String username) {
+        user = username;
         db = FirebaseDatabase.getInstance();
-        userRef = db.getReference("/users/" + username);
-        waterSamples = userRef.child("waterSamples"); // get the waterSamples reference for this user, this property is used for monthlyWaterSamples, and is not really used directly
+        userRef = db.getReference("/users/" + user);
+        waterSamples = db.getReference("/waterSamples/" + user);
         start_date = 0; // initial start_date for querying
     }
 
@@ -85,7 +87,7 @@ public class FirebaseHelper {
         if(value.getClass() == Integer.class) {
             value = value.intValue();
         }
-        userRef.child("alarmParameters").child(pref).setValue(value, listener);
+        db.getReference("/alarmParameters/" + user).child(pref).setValue(value, listener);
     }
 
     public void setRegistrationToken(String token) {
