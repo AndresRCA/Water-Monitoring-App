@@ -27,6 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ public class ReportsActivity extends AppCompatActivity {
     private DatePickerDialog.OnDateSetListener mToDateSetListener;
 
     private RecyclerView mRecyclerView;
+    ArrayList<Report> userReports;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
@@ -54,11 +56,33 @@ public class ReportsActivity extends AppCompatActivity {
 
         mFromDateBtn = findViewById(R.id.from_date_btn);
         mToDateBtn = findViewById(R.id.to_date_btn);
+
+        if (savedInstanceState != null) {
+            from_date = savedInstanceState.getLong("from_date");
+            to_date = savedInstanceState.getLong("to_date");
+            DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+            if (from_date != 0) {
+                String str_fromDate = formatter.format(from_date);
+                mFromDateBtn.setText(str_fromDate);
+            }
+            if (to_date != 0) {
+                String str_toDate = formatter.format(to_date);
+                mToDateBtn.setText(str_toDate);
+            }
+
+            userReports = savedInstanceState.getParcelableArrayList("userReports");
+        }
+        else {
+            userReports = new ArrayList<>();
+        }
+
         mRecyclerView = findViewById(R.id.reports_recycler_view);
 
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getApplicationContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
+        mAdapter = new ReportsAdapter(userReports);
+        mRecyclerView.setAdapter(mAdapter);
 
         // Date picker callback when a date is added
         mFromDateSetListener = new DatePickerDialog.OnDateSetListener() {
@@ -143,7 +167,8 @@ public class ReportsActivity extends AppCompatActivity {
         }
 
         // ready list of reports
-        final ArrayList<Report> userReports = new ArrayList<>();
+        userReports.clear();
+        mAdapter.notifyDataSetChanged();
 
         SharedPreferences userPrefs = getSharedPreferences("user_data", MODE_PRIVATE);
         String user = userPrefs.getString("username", null);
@@ -181,9 +206,7 @@ public class ReportsActivity extends AppCompatActivity {
                         Report report = new Report(id, parameter, value, created_at);
                         userReports.add(report);
                     }
-
-                    mAdapter = new ReportsAdapter(userReports);
-                    mRecyclerView.setAdapter(mAdapter);
+                    mAdapter.notifyDataSetChanged();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -196,6 +219,13 @@ public class ReportsActivity extends AppCompatActivity {
         });
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
+    }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong("from_date", from_date);
+        outState.putLong("to_date", to_date);
+        outState.putParcelableArrayList("userReports", userReports);
     }
 }
