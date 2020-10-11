@@ -67,9 +67,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             drawer.closeDrawer(GravityCompat.START);
         }
         else {
-            // instead of super, use a login intent or maybe finish() (to avoid the issue with pressing back on main...)
-            // and clear data too
-            super.onBackPressed();
+            SharedPreferences.Editor editor = userPrefs.edit();
+            editor.clear(); // clear all user data
+            editor.apply();
+            Intent signOutIntent = new Intent(this, LoginActivity.class);
+            startActivity(signOutIntent);
+            //super.onBackPressed();
         }
     }
 

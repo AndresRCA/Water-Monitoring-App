@@ -1,6 +1,8 @@
 package com.example.watermonitoring;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import models.Report;
 
 import android.app.DatePickerDialog;
@@ -27,6 +29,7 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -34,6 +37,10 @@ public class ReportsActivity extends AppCompatActivity {
 
     private DatePickerDialog.OnDateSetListener mFromDateSetListener;
     private DatePickerDialog.OnDateSetListener mToDateSetListener;
+
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
 
     private Button mFromDateBtn;
     private Button mToDateBtn;
@@ -47,6 +54,11 @@ public class ReportsActivity extends AppCompatActivity {
 
         mFromDateBtn = findViewById(R.id.from_date_btn);
         mToDateBtn = findViewById(R.id.to_date_btn);
+        mRecyclerView = findViewById(R.id.reports_recycler_view);
+
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        mRecyclerView.setLayoutManager(mLayoutManager);
 
         // Date picker callback when a date is added
         mFromDateSetListener = new DatePickerDialog.OnDateSetListener() {
@@ -130,6 +142,9 @@ public class ReportsActivity extends AppCompatActivity {
             return;
         }
 
+        // ready list of reports
+        final ArrayList<Report> userReports = new ArrayList<>();
+
         SharedPreferences userPrefs = getSharedPreferences("user_data", MODE_PRIVATE);
         String user = userPrefs.getString("username", null);
         // Instantiate the RequestQueue.
@@ -164,9 +179,11 @@ public class ReportsActivity extends AppCompatActivity {
                         long created_at = row.getLong("created_at");
 
                         Report report = new Report(id, parameter, value, created_at);
-                        // add report to list
-
+                        userReports.add(report);
                     }
+
+                    mAdapter = new ReportsAdapter(userReports);
+                    mRecyclerView.setAdapter(mAdapter);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
