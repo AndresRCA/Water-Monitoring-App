@@ -12,6 +12,9 @@
             android:id="@+id/settings"
             android:title="Settings" />
         <item
+            android:id="@+id/reports"
+            android:title="Reports" />
+        <item
             android:id="@+id/sign_out"
             android:title="Sign out" />
     </group>

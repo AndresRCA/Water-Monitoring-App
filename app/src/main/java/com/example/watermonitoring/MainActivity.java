@@ -67,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             drawer.closeDrawer(GravityCompat.START);
         }
         else {
+            // instead of super, use a login intent or maybe finish() (to avoid the issue with pressing back on main...)
+            // and clear data too
             super.onBackPressed();
         }
     }
@@ -84,6 +86,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Intent settingsIntent = new Intent(this, SettingsActivity.class);
                 drawer.closeDrawer(GravityCompat.START);
                 startActivity(settingsIntent); // what should I do? I'll never return true and maybe that's what's making the Settings item highlighted when i press the back button but not the back arrow?
+                break;
+            case R.id.reports:
+                Intent reportsIntent = new Intent(this, ReportsActivity.class);
+                drawer.closeDrawer(GravityCompat.START);
+                startActivity(reportsIntent); // what should I do? I'll never return true and maybe that's what's making the Settings item highlighted when i press the back button but not the back arrow?
                 break;
             case R.id.sign_out:
                 SharedPreferences.Editor editor = userPrefs.edit();
