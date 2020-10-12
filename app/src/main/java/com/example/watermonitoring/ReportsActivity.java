@@ -1,14 +1,18 @@
 package com.example.watermonitoring;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import models.Report;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -27,6 +31,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -41,6 +47,7 @@ public class ReportsActivity extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
     ArrayList<Report> userReports;
+    private JSONObject jsonReports;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
@@ -181,8 +188,8 @@ public class ReportsActivity extends AppCompatActivity {
             @Override
             public void onResponse(String response) {
                 try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    JSONArray reports = jsonObject.getJSONArray("reports");
+                    jsonReports = new JSONObject(response);
+                    JSONArray reports = jsonReports.getJSONArray("reports");
                     Log.d("water/onResponse", "reports: " + reports.toString());
                     if (reports.length() == 0) {
                         Toast.makeText(getApplicationContext(), "there is no data in that time interval", Toast.LENGTH_SHORT).show();
@@ -219,6 +226,32 @@ public class ReportsActivity extends AppCompatActivity {
         });
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
+    }
+
+    public void exportData(View v) {
+        if (userReports.size() == 0) {
+            Toast.makeText(this, "there is no data to export", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            FileOutputStream out = openFileOutput("report.json", Context.MODE_PRIVATE);
+            out.write(jsonReports.toString().getBytes());
+            out.close();
+
+            Context context = getApplicationContext();
+            File fileLocation = new File(getFilesDir(), "report.json");
+            Uri path = FileProvider.getUriForFile(context, "com.example.watermonitoring.fileprovider", fileLocation);
+            Intent fileIntent =new Intent(Intent.ACTION_SEND);
+            fileIntent.setType("text/json");
+            fileIntent.putExtra(Intent.EXTRA_SUBJECT, "Report");
+            fileIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            fileIntent.putExtra(Intent.EXTRA_STREAM, path);
+            startActivity(Intent.createChooser(fileIntent, "Send mail"));
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

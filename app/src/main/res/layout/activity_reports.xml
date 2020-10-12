@@ -59,7 +59,19 @@
         android:scrollbars="vertical"
         app:layout_constraintBottom_toTopOf="@+id/button3"
         app:layout_constraintTop_toBottomOf="@+id/to_date_btn"
-        tools:layout_editor_absoluteX="16dp" />
+        tools:layout_editor_absoluteX="16dp" >
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <Button
+        android:id="@+id/export_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="export"
+        android:onClick="exportData"
+        app:layout_constraintBaseline_toBaselineOf="@+id/button3"
+        app:layout_constraintEnd_toStartOf="@+id/button3" />
 
     <Button
         android:id="@+id/button3"
@@ -71,4 +83,5 @@
         android:onClick="getReports"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
