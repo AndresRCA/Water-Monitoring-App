@@ -47,7 +47,7 @@ public class ReportsActivity extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
     ArrayList<Report> userReports;
-    private JSONObject jsonReports;
+    private String jsonReportsStr;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
@@ -77,9 +77,11 @@ public class ReportsActivity extends AppCompatActivity {
                 mToDateBtn.setText(str_toDate);
             }
 
+            jsonReportsStr = savedInstanceState.getString("jsonReportsStr");
             userReports = savedInstanceState.getParcelableArrayList("userReports");
         }
         else {
+            jsonReportsStr = "";
             userReports = new ArrayList<>();
         }
 
@@ -175,6 +177,7 @@ public class ReportsActivity extends AppCompatActivity {
 
         // ready list of reports
         userReports.clear();
+        jsonReportsStr = "";
         mAdapter.notifyDataSetChanged();
 
         SharedPreferences userPrefs = getSharedPreferences("user_data", MODE_PRIVATE);
@@ -188,8 +191,9 @@ public class ReportsActivity extends AppCompatActivity {
             @Override
             public void onResponse(String response) {
                 try {
-                    jsonReports = new JSONObject(response);
-                    JSONArray reports = jsonReports.getJSONArray("reports");
+                    JSONObject jsonObject = new JSONObject(response);
+                    jsonReportsStr = jsonObject.toString();
+                    JSONArray reports = jsonObject.getJSONArray("reports");
                     Log.d("water/onResponse", "reports: " + reports.toString());
                     if (reports.length() == 0) {
                         Toast.makeText(getApplicationContext(), "there is no data in that time interval", Toast.LENGTH_SHORT).show();
@@ -229,14 +233,14 @@ public class ReportsActivity extends AppCompatActivity {
     }
 
     public void exportData(View v) {
-        if (userReports.size() == 0) {
+        if (jsonReportsStr.isEmpty()) {
             Toast.makeText(this, "there is no data to export", Toast.LENGTH_SHORT).show();
             return;
         }
 
         try {
             FileOutputStream out = openFileOutput("report.json", Context.MODE_PRIVATE);
-            out.write(jsonReports.toString().getBytes());
+            out.write(jsonReportsStr.getBytes());
             out.close();
 
             Context context = getApplicationContext();
@@ -259,6 +263,7 @@ public class ReportsActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         outState.putLong("from_date", from_date);
         outState.putLong("to_date", to_date);
+        outState.putString("jsonReportsStr", jsonReportsStr);
         outState.putParcelableArrayList("userReports", userReports);
     }
 }
